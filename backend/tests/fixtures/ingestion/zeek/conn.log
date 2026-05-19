@@ -1,0 +1,6 @@
+{"ts": 1704067200.0, "uid": "C001", "id.orig_h": "10.0.0.21", "id.orig_p": 51200, "id.resp_h": "10.0.0.11", "id.resp_p": 445, "proto": "tcp", "duration": 12.5, "orig_pkts": 600, "resp_pkts": 540, "orig_ip_bytes": 41000, "resp_ip_bytes": 41000}
+{"ts": 1704067260.0, "uid": "C002", "id.orig_h": "10.0.0.21", "id.orig_p": 51300, "id.resp_h": "10.0.0.5", "id.resp_p": 389, "proto": "tcp", "duration": 3.2, "orig_pkts": 220, "resp_pkts": 220, "orig_ip_bytes": 15500, "resp_ip_bytes": 15500}
+{"ts": 1704067320.0, "uid": "C003", "id.orig_h": "10.0.0.11", "id.orig_p": 445, "id.resp_h": "10.0.0.21", "id.resp_p": 51200, "proto": "tcp", "duration": 0.4, "orig_pkts": 30, "resp_pkts": 30, "orig_ip_bytes": 2100, "resp_ip_bytes": 2100}
+this is not json and must be skipped without halting the stream
+{"ts": 1704067380.0, "uid": "C004", "id.orig_h": "10.0.0.21", "id.orig_p": 99999, "id.resp_h": "10.0.0.11", "id.resp_p": 445, "proto": "tcp", "duration": 1.0, "orig_pkts": 10, "resp_pkts": 10, "orig_ip_bytes": 800, "resp_ip_bytes": 800}
+{"ts": 1704067440.0, "uid": "C005", "id.orig_h": "10.0.0.21", "id.orig_p": 51400, "id.resp_h": "10.0.1.1", "id.resp_p": 443, "proto": "tcp", "duration": 2.0, "orig_pkts": 50, "resp_pkts": 50, "orig_ip_bytes": 3500, "resp_ip_bytes": 3500}

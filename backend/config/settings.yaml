@@ -1,0 +1,91 @@
+# =============================================================================
+# LateD — global runtime configuration
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Central, declarative configuration for every backend module.
+# Read by `lated.common.config_manager.ConfigManager` at startup.
+#
+# Environment variables (LATED_*) override matching keys here — see
+# .env.example for the canonical env var list.
+#
+# OPERATIONAL NOTES
+# -----------------
+# - Detection thresholds live in detection_thresholds.yaml, NOT here. This
+#   separation lets SOC operators tune detection without redeploying.
+# - Section names mirror the Python package layout one-to-one.
+# =============================================================================
+
+env: development            # development | staging | production
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  cors_origins:
+    - http://localhost:3000
+
+logging:
+  level: INFO
+  format: json              # json (prod) | console (dev)
+
+# --- Discovery ---------------------------------------------------------------
+discovery:
+  mode: passive             # passive | active | hybrid
+  passive_window_seconds: 86400
+  active_scan_enabled: false
+  arp_enabled: true
+  dns_enabled: true
+
+# --- Ingestion ---------------------------------------------------------------
+ingestion:
+  mode: replay              # replay | live
+  source: zeek              # pcap | zeek | netflow
+  pcap_interface: ""        # only used when source = pcap
+  pcap_path: ""             # used in replay mode for pcap file input
+  zeek_log_dir: /data/zeek
+  netflow_port: 2055
+  batch_size: 1000
+
+# --- Temporal graph ----------------------------------------------------------
+graph:
+  snapshot_window_seconds: 30
+  snapshot_overlap: false   # snapshots must NOT overlap (architectural invariant)
+  max_in_memory_snapshots: 240    # 2 hours at 30s/snapshot
+  edge_feature_set:
+    - bytes
+    - packets
+    - duration
+    - port_entropy
+    - fan_out
+    - fan_in
+    - temporal_delta
+
+# --- Detection ---------------------------------------------------------------
+detection:
+  tgnn:
+    model_path: /data/models/tgnn_lm.pt
+    device: cpu             # cpu | cuda
+    batch_size: 64
+  recon:
+    window_seconds: 60
+    min_unique_dst: 25
+  fusion:
+    weight_lm: 0.6
+    weight_recon: 0.3
+    weight_history: 0.1
+
+# --- Correlation -------------------------------------------------------------
+correlation:
+  temporal_continuity_seconds: 300
+  max_path_length: 8
+  enable_mitre_tags: true
+
+# --- Supervision -------------------------------------------------------------
+supervision:
+  alerts:
+    persistence: postgres
+    retention_days: 365
+  websocket:
+    heartbeat_seconds: 15
+    auth_required: true

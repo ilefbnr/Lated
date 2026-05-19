@@ -1,0 +1,254 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-05-19T13:43:40.600919+00:00",
+  "nodes": [
+    {
+      "host_id": "host-2298588908a2",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:05+00:00",
+      "last_seen": "2024-05-16T09:00:05+00:00",
+      "ip_addresses": [
+        "10.0.0.13"
+      ]
+    },
+    {
+      "host_id": "host-55333d44f2e1",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:14+00:00",
+      "last_seen": "2024-05-16T09:00:14+00:00",
+      "ip_addresses": [
+        "10.0.0.50"
+      ]
+    },
+    {
+      "host_id": "host-5cfed074667a",
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:31+00:00",
+      "last_seen": "2024-05-16T09:01:10+00:00",
+      "ip_addresses": [
+        "10.0.1.31"
+      ]
+    },
+    {
+      "host_id": "host-61ea7d04c39c",
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:35+00:00",
+      "last_seen": "2024-05-16T09:00:35+00:00",
+      "ip_addresses": [
+        "10.0.1.32"
+      ]
+    },
+    {
+      "host_id": "host-653e5864a1c1",
+      "hostname": "ws-finance-01",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-05-16T09:00:12+00:00",
+      "ip_addresses": [
+        "10.0.0.21"
+      ]
+    },
+    {
+      "host_id": "host-85e3b8bb7ceb",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:12+00:00",
+      "last_seen": "2024-05-16T09:00:45+00:00",
+      "ip_addresses": [
+        "10.0.0.20"
+      ]
+    },
+    {
+      "host_id": "host-90649b594f60",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:47+00:00",
+      "last_seen": "2024-05-16T09:00:47+00:00",
+      "ip_addresses": [
+        "10.0.0.51"
+      ]
+    },
+    {
+      "host_id": "host-9b84f0297554",
+      "hostname": "dc-core-01",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "ip_addresses": [
+        "10.0.0.5"
+      ]
+    },
+    {
+      "host_id": "host-abbc0737be6c",
+      "hostname": null,
+      "subnet": "10.0.2.0/24",
+      "first_seen": "2024-05-16T09:01:05+00:00",
+      "last_seen": "2024-05-16T09:01:10+00:00",
+      "ip_addresses": [
+        "10.0.2.5"
+      ]
+    },
+    {
+      "host_id": "host-acefe74605b8",
+      "hostname": "ws-remote-50",
+      "subnet": "10.0.2.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "ip_addresses": [
+        "10.0.2.50"
+      ]
+    },
+    {
+      "host_id": "host-c10d93d96373",
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:40+00:00",
+      "last_seen": "2024-05-16T09:00:40+00:00",
+      "ip_addresses": [
+        "10.0.1.33"
+      ]
+    },
+    {
+      "host_id": "host-c239049f8215",
+      "hostname": "fs-core-02",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-05-16T09:00:14+00:00",
+      "ip_addresses": [
+        "10.0.0.11"
+      ]
+    },
+    {
+      "host_id": "host-d0126d2dec56",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:03+00:00",
+      "last_seen": "2024-05-16T09:00:47+00:00",
+      "ip_addresses": [
+        "10.0.0.12"
+      ]
+    },
+    {
+      "host_id": "host-d08de5237be4",
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:45+00:00",
+      "last_seen": "2024-05-16T09:00:45+00:00",
+      "ip_addresses": [
+        "10.0.1.34"
+      ]
+    },
+    {
+      "host_id": "host-d12439277f6e",
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:09+00:00",
+      "last_seen": "2024-05-16T09:00:09+00:00",
+      "ip_addresses": [
+        "10.0.0.14"
+      ]
+    },
+    {
+      "host_id": "host-fb022fdf765e",
+      "hostname": "gw-edge-01",
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "ip_addresses": [
+        "10.0.1.1"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "src": "host-55333d44f2e1",
+      "dst": "host-c239049f8215",
+      "communication_count": 1
+    },
+    {
+      "src": "host-5cfed074667a",
+      "dst": "host-abbc0737be6c",
+      "communication_count": 2
+    },
+    {
+      "src": "host-653e5864a1c1",
+      "dst": "host-2298588908a2",
+      "communication_count": 1
+    },
+    {
+      "src": "host-653e5864a1c1",
+      "dst": "host-85e3b8bb7ceb",
+      "communication_count": 1
+    },
+    {
+      "src": "host-653e5864a1c1",
+      "dst": "host-c239049f8215",
+      "communication_count": 1
+    },
+    {
+      "src": "host-653e5864a1c1",
+      "dst": "host-d0126d2dec56",
+      "communication_count": 1
+    },
+    {
+      "src": "host-653e5864a1c1",
+      "dst": "host-d12439277f6e",
+      "communication_count": 1
+    },
+    {
+      "src": "host-85e3b8bb7ceb",
+      "dst": "host-5cfed074667a",
+      "communication_count": 1
+    },
+    {
+      "src": "host-85e3b8bb7ceb",
+      "dst": "host-61ea7d04c39c",
+      "communication_count": 1
+    },
+    {
+      "src": "host-85e3b8bb7ceb",
+      "dst": "host-c10d93d96373",
+      "communication_count": 1
+    },
+    {
+      "src": "host-85e3b8bb7ceb",
+      "dst": "host-d08de5237be4",
+      "communication_count": 1
+    },
+    {
+      "src": "host-90649b594f60",
+      "dst": "host-d0126d2dec56",
+      "communication_count": 1
+    }
+  ],
+  "subnets": {
+    "10.0.0.0/24": [
+      "host-2298588908a2",
+      "host-55333d44f2e1",
+      "host-653e5864a1c1",
+      "host-85e3b8bb7ceb",
+      "host-90649b594f60",
+      "host-9b84f0297554",
+      "host-c239049f8215",
+      "host-d0126d2dec56",
+      "host-d12439277f6e"
+    ],
+    "10.0.1.0/24": [
+      "host-5cfed074667a",
+      "host-61ea7d04c39c",
+      "host-c10d93d96373",
+      "host-d08de5237be4",
+      "host-fb022fdf765e"
+    ],
+    "10.0.2.0/24": [
+      "host-abbc0737be6c",
+      "host-acefe74605b8"
+    ]
+  },
+  "gateways": [],
+  "services": []
+}

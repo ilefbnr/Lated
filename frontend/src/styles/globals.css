@@ -1,0 +1,64 @@
+/* =============================================================================
+   globals.css — base styles + cyber atmosphere
+   =============================================================================
+
+   PURPOSE
+   -------
+   Tailwind directives + a thin layer of "atmosphere" styles that make the
+   SOC dashboard feel like a real command center:
+     - subtle scanlines on the canvas,
+     - radial gradient backlight,
+     - glassmorphism utility classes used across panels.
+
+   DESIGN
+   ------
+   The atmosphere effects are pure CSS so they cost nothing at runtime.
+   They are deliberately subtle — they set tone without distracting from
+   the analyst's actual work.
+   ============================================================================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #__next {
+    @apply h-full bg-canvas text-ink antialiased font-sans;
+  }
+  body {
+    background-image:
+      radial-gradient(1200px 600px at 70% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
+      radial-gradient(1000px 500px at 10% 110%, rgba(167, 139, 250, 0.06), transparent 60%);
+    background-attachment: fixed;
+  }
+  /* Subtle scanline overlay — pure cosmetic, SOC vibe. */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(255, 255, 255, 0.015) 3px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@layer components {
+  /* Glassmorphism panel — used by every dashboard card. */
+  .glass {
+    @apply bg-surface/60 backdrop-blur-glass border border-outline/60
+           rounded-2xl shadow-panel;
+  }
+  /* Section heading with a faint cyan rail. */
+  .section-title {
+    @apply text-xs uppercase tracking-[0.18em] text-muted
+           border-l-2 border-cyan/60 pl-3;
+  }
+  /* Telemetry monospace value (counters, hashes). */
+  .mono-val {
+    @apply font-mono text-ink;
+  }
+}

@@ -1,0 +1,44 @@
+# =============================================================================
+# LateD — detection thresholds (operator-tunable)
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Holds every numeric threshold consulted by the detection + correlation
+# layers. SOC operators tune this file WITHOUT touching code.
+#
+# This file is hot-reloadable: a SIGHUP to the detection workers (or the
+# /admin/reload-thresholds API endpoint) re-reads it.
+#
+# RATIONALE
+# ---------
+# - Thresholds change with the network — code does not.
+# - Operators have institutional knowledge analysts cannot encode in code.
+# - All entries are bounded: out-of-range values cause startup failure
+#   (fail-loud rather than fail-silent).
+# =============================================================================
+
+# --- TGNN LM scoring ---------------------------------------------------------
+tgnn:
+  lm_alert_threshold: 0.75       # >= -> emit lm alert
+  lm_severity_high: 0.90
+  lm_severity_medium: 0.75
+
+# --- Reconnaissance heuristics ----------------------------------------------
+recon:
+  fanout_threshold: 50           # unique destinations per window
+  port_diversity_threshold: 15   # unique destination ports per window
+  burst_packets_per_sec: 200
+  low_bytes_per_connection: 256  # tiny payloads = probing signature
+  sequential_probe_min_seq: 8    # consecutive ports within window
+
+# --- Fusion ------------------------------------------------------------------
+fusion:
+  suspicion_alert_threshold: 0.70
+  host_risk_decay_per_hour: 0.05    # graceful forgetting
+
+# --- Correlation -------------------------------------------------------------
+correlation:
+  recon_to_lm_max_gap_seconds: 600
+  min_path_confidence: 0.55
+  pivot_min_neighbors: 3

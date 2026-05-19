@@ -1,0 +1,49 @@
+# =============================================================================
+# LateD — structured logging configuration
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Defines the structlog/stdlib logging pipeline for the backend.
+# Loaded by `lated.common.logger.configure_logging()`.
+#
+# CYBERSECURITY REASONING
+# -----------------------
+# SOC platforms MUST emit machine-parsable logs:
+#   - JSON output for ingestion by upstream SIEMs.
+#   - Stable field names: timestamp, level, module, event, alert_id, host.
+#   - No PII, no raw payloads — only canonical metadata.
+#
+# Every log line is correlatable across modules via `request_id` (REST/WS) and
+# `alert_id` (detection chain).
+# =============================================================================
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  json:
+    class: lated.common.logger.JsonFormatter
+  console:
+    format: "%(asctime)s %(levelname)-7s %(name)s :: %(message)s"
+
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    stream: ext://sys.stdout
+    formatter: json
+    level: INFO
+
+loggers:
+  lated:
+    level: INFO
+    handlers: [stdout]
+    propagate: false
+  uvicorn.access:
+    level: WARNING       # access logs are noisy; rely on structured app logs
+    handlers: [stdout]
+    propagate: false
+
+root:
+  level: WARNING
+  handlers: [stdout]

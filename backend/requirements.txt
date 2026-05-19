@@ -1,0 +1,24 @@
+# =============================================================================
+# LateD backend — runtime requirements (online inference image).
+# =============================================================================
+# This file mirrors `[project.dependencies]` in pyproject.toml.
+# It exists so that the Docker build can `pip install -r requirements.txt`
+# without needing the full PEP 517 build pipeline.
+#
+# DO NOT add training dependencies here — those live in requirements-train.txt.
+# Keeping the runtime image lean is a security property (smaller attack surface).
+# =============================================================================
+
+fastapi>=0.110
+uvicorn[standard]>=0.27
+websockets>=12
+pydantic>=2.6
+pyyaml>=6.0
+redis>=5.0
+sqlalchemy>=2.0
+psycopg[binary]>=3.1
+numpy>=1.26
+scapy>=2.5
+networkx>=3.2
+structlog>=24.1
+prometheus-client>=0.20

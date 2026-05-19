@@ -1,0 +1,103 @@
+# =============================================================================
+# LateD backend — project metadata + tool configuration.
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Defines the Python package metadata, build system, runtime dependencies,
+# and tooling configuration (linters, formatters, type checkers, test runner)
+# for the LateD backend.
+#
+# This file is the single source of truth for "what is the LateD backend
+# package and how is it built". Container images, CI, and local dev all read
+# from here.
+#
+# DESIGN NOTES
+# ------------
+# - Dependencies are grouped by lifecycle (runtime vs. training vs. dev).
+# - The training stack (torch, torch-geometric, scikit-learn) is OPTIONAL —
+#   production inference containers can be built without it to reduce attack
+#   surface and image size.
+# - Linters (ruff, mypy) are configured strictly: a SOC platform must not ship
+#   with silent type errors or dead imports.
+# =============================================================================
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lated"
+version = "0.1.0"
+description = "LateD — Lateral Movement Detection Platform (SOC-grade, TGNN-based)"
+readme = "../README.md"
+requires-python = ">=3.11"
+authors = [{ name = "LateD Team" }]
+license = { text = "Proprietary" }
+
+# ------------------------------------------------------------------
+# Runtime dependencies
+# ------------------------------------------------------------------
+# Minimal set required to run the ONLINE detection pipeline.
+# The training pipeline pulls in the extra "train" group.
+# ------------------------------------------------------------------
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "websockets>=12",
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "redis>=5.0",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.1",
+    "numpy>=1.26",
+    "scapy>=2.5",            # PCAP parsing only — no AI logic
+    "networkx>=3.2",         # graph utilities
+    "structlog>=24.1",
+    "prometheus-client>=0.20",
+]
+
+[project.optional-dependencies]
+train = [
+    "torch>=2.2",
+    "torch-geometric>=2.5",
+    "scikit-learn>=1.4",
+    "pandas>=2.2",
+    "tqdm>=4.66",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.3",
+    "mypy>=1.9",
+    "httpx>=0.27",           # for FastAPI test client
+]
+
+# ------------------------------------------------------------------
+# Console entry points
+# ------------------------------------------------------------------
+[project.scripts]
+lated-api      = "lated.main:run_api"            # supervision API + WS
+lated-online   = "lated.pipelines.online.pipeline_runner:run"
+lated-train    = "lated.pipelines.offline.pretrain_ssl:run"
+lated-finetune = "lated.pipelines.offline.finetune_lm:run"
+
+# ------------------------------------------------------------------
+# Tooling
+# ------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-select = ["E", "F", "I", "B", "UP", "N", "S"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

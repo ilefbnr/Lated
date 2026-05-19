@@ -1,0 +1,326 @@
+{
+  "schema_version": "1.0.0",
+  "liveness_seconds": 86400,
+  "records": [
+    {
+      "host_id": "host-2298588908a2",
+      "ip_addresses": [
+        "10.0.0.13"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:05+00:00",
+      "last_seen": "2024-05-16T09:00:05+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.13",
+          "valid_from": "2024-05-16T09:00:05+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-55333d44f2e1",
+      "ip_addresses": [
+        "10.0.0.50"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:14+00:00",
+      "last_seen": "2024-05-16T09:00:14+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.50",
+          "valid_from": "2024-05-16T09:00:14+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-5cfed074667a",
+      "ip_addresses": [
+        "10.0.1.31"
+      ],
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:31+00:00",
+      "last_seen": "2024-05-16T09:01:10+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.1.31",
+          "valid_from": "2024-05-16T09:00:31+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-61ea7d04c39c",
+      "ip_addresses": [
+        "10.0.1.32"
+      ],
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:35+00:00",
+      "last_seen": "2024-05-16T09:00:35+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.1.32",
+          "valid_from": "2024-05-16T09:00:35+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-653e5864a1c1",
+      "ip_addresses": [
+        "10.0.0.21"
+      ],
+      "hostname": "ws-finance-01",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-05-16T09:00:12+00:00",
+      "mac": "aa:bb:cc:00:00:21",
+      "os_guess": "windows",
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.21",
+          "valid_from": "2024-01-01T00:00:00+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-85e3b8bb7ceb",
+      "ip_addresses": [
+        "10.0.0.20"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:12+00:00",
+      "last_seen": "2024-05-16T09:00:45+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.20",
+          "valid_from": "2024-05-16T09:00:12+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-90649b594f60",
+      "ip_addresses": [
+        "10.0.0.51"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:47+00:00",
+      "last_seen": "2024-05-16T09:00:47+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.51",
+          "valid_from": "2024-05-16T09:00:47+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-9b84f0297554",
+      "ip_addresses": [
+        "10.0.0.5"
+      ],
+      "hostname": "dc-core-01",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "mac": "aa:bb:cc:00:00:05",
+      "os_guess": "windows",
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.5",
+          "valid_from": "2024-01-01T00:00:00+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-abbc0737be6c",
+      "ip_addresses": [
+        "10.0.2.5"
+      ],
+      "hostname": null,
+      "subnet": "10.0.2.0/24",
+      "first_seen": "2024-05-16T09:01:05+00:00",
+      "last_seen": "2024-05-16T09:01:10+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.2.5",
+          "valid_from": "2024-05-16T09:01:05+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-acefe74605b8",
+      "ip_addresses": [
+        "10.0.2.50"
+      ],
+      "hostname": "ws-remote-50",
+      "subnet": "10.0.2.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "mac": "aa:bb:cc:00:02:32",
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.2.50",
+          "valid_from": "2024-01-01T00:00:00+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-c10d93d96373",
+      "ip_addresses": [
+        "10.0.1.33"
+      ],
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:40+00:00",
+      "last_seen": "2024-05-16T09:00:40+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.1.33",
+          "valid_from": "2024-05-16T09:00:40+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-c239049f8215",
+      "ip_addresses": [
+        "10.0.0.11"
+      ],
+      "hostname": "fs-core-02",
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-05-16T09:00:14+00:00",
+      "mac": "aa:bb:cc:00:00:11",
+      "os_guess": "linux",
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.11",
+          "valid_from": "2024-01-01T00:00:00+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-d0126d2dec56",
+      "ip_addresses": [
+        "10.0.0.12"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:03+00:00",
+      "last_seen": "2024-05-16T09:00:47+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.12",
+          "valid_from": "2024-05-16T09:00:03+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-d08de5237be4",
+      "ip_addresses": [
+        "10.0.1.34"
+      ],
+      "hostname": null,
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-05-16T09:00:45+00:00",
+      "last_seen": "2024-05-16T09:00:45+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.1.34",
+          "valid_from": "2024-05-16T09:00:45+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-d12439277f6e",
+      "ip_addresses": [
+        "10.0.0.14"
+      ],
+      "hostname": null,
+      "subnet": "10.0.0.0/24",
+      "first_seen": "2024-05-16T09:00:09+00:00",
+      "last_seen": "2024-05-16T09:00:09+00:00",
+      "mac": null,
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.0.14",
+          "valid_from": "2024-05-16T09:00:09+00:00",
+          "valid_to": null
+        }
+      ]
+    },
+    {
+      "host_id": "host-fb022fdf765e",
+      "ip_addresses": [
+        "10.0.1.1"
+      ],
+      "hostname": "gw-edge-01",
+      "subnet": "10.0.1.0/24",
+      "first_seen": "2024-01-01T00:00:00+00:00",
+      "last_seen": "2024-01-01T01:00:00+00:00",
+      "mac": "aa:bb:cc:00:01:01",
+      "os_guess": null,
+      "metadata": {},
+      "bindings": [
+        {
+          "ip": "10.0.1.1",
+          "valid_from": "2024-01-01T00:00:00+00:00",
+          "valid_to": null
+        }
+      ]
+    }
+  ]
+}

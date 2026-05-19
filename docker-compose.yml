@@ -1,0 +1,104 @@
+# =============================================================================
+# LateD — docker-compose orchestration
+# =============================================================================
+#
+# PURPOSE
+# -------
+# Multi-service orchestration for the LateD SOC platform.
+# This compose file is the canonical local / staging deployment manifest.
+#
+# SERVICES
+# --------
+#  - backend       : FastAPI app exposing REST + WebSocket (supervision layer).
+#                    Hosts the ingestion, graph, detection, correlation modules.
+#  - frontend      : Next.js SOC dashboard (port 3000).
+#  - redis         : In-memory broker used by the alert engine and websocket
+#                    fan-out (decouples detection threads from API consumers).
+#  - postgres      : Persistent store for alerts, host registry, attack paths.
+#  - graphdb       : (Optional) Neo4j or similar — long-term temporal graph
+#                    persistence for forensic re-investigation.
+#
+# DEPLOYMENT ROLE
+# ---------------
+# This file is meant for local SOC analyst stations and lab environments.
+# Production deployments should translate this into a Helm chart / k8s manifest
+# while preserving the SAME service boundaries (security isolation property).
+#
+# SECURITY REASONING
+# ------------------
+# - Each module runs in its own container -> blast-radius containment.
+# - Network capture interfaces (PCAP) are NOT mounted by default — they require
+#   an explicit overlay file (docker-compose.capture.yml) to opt-in to
+#   privileged network access.
+# - Secrets are read from .env (never committed). See .env.example.
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  backend:
+    # FastAPI supervision layer + detection workers.
+    # Internally launches:
+    #   - REST API   (uvicorn)
+    #   - WebSocket  (same ASGI app, /ws/* routes)
+    #   - background tasks: ingestion, graph builder, TGNN inference, recon, correlation
+    build: ./backend
+    container_name: lated-backend
+    env_file: .env
+    ports:
+      - "8000:8000"      # REST + WebSocket
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./backend/config:/app/config:ro
+      - ./data:/data                 # canonical flows, snapshots, model artifacts
+    restart: unless-stopped
+
+  frontend:
+    # SOC operator dashboard.
+    # Connects to backend over REST + WebSocket.
+    build: ./frontend
+    container_name: lated-frontend
+    env_file: .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    # Event broker. Decouples detection producers from API/WS consumers,
+    # so an inference spike cannot back-pressure the analyst-facing API.
+    image: redis:7-alpine
+    container_name: lated-redis
+    restart: unless-stopped
+
+  postgres:
+    # Persistent alert + host registry store.
+    image: postgres:16-alpine
+    container_name: lated-postgres
+    env_file: .env
+    environment:
+      POSTGRES_DB: lated
+    volumes:
+      - lated-pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  graphdb:
+    # OPTIONAL — forensic graph store. Comment out if not needed.
+    # Holds historical temporal snapshots for post-incident replay.
+    image: neo4j:5-community
+    container_name: lated-graphdb
+    env_file: .env
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - lated-graphdata:/data
+    restart: unless-stopped
+
+volumes:
+  lated-pgdata:
+  lated-graphdata:

@@ -1,0 +1,2 @@
+{"ts":"2019-07-19T18:05:19.362244Z","host":"10.99.99.27","software_type":"HTTP::BROWSER","name":"Edge","version.major":18,"version.minor":17763,"unparsed_version":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763"}
+{"ts":"2019-07-19T18:08:03.499854Z","host":"10.99.99.27","software_type":"HTTP::BROWSER","name":"DavClnt","unparsed_version":"DavClnt"}

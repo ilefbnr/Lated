@@ -1,0 +1,51 @@
+{
+  "hosts": [
+    {
+      "ip": "10.0.0.21",
+      "mac": "aa:bb:cc:00:00:21",
+      "hostname": "ws-finance-01",
+      "first_seen": "2024-01-01T00:00:00Z",
+      "last_seen": "2024-01-01T01:00:00Z",
+      "os_guess": "windows"
+    },
+    {
+      "ip": "10.0.0.11",
+      "mac": "aa:bb:cc:00:00:11",
+      "hostname": "fs-core-02",
+      "first_seen": "2024-01-01T00:00:00Z",
+      "last_seen": "2024-01-01T01:00:00Z",
+      "os_guess": "linux"
+    },
+    {
+      "ip": "10.0.0.5",
+      "mac": "aa:bb:cc:00:00:05",
+      "hostname": "dc-core-01",
+      "first_seen": "2024-01-01T00:00:00Z",
+      "last_seen": "2024-01-01T01:00:00Z",
+      "os_guess": "windows"
+    },
+    {
+      "ip": "10.0.1.1",
+      "mac": "aa:bb:cc:00:01:01",
+      "hostname": "gw-edge-01",
+      "first_seen": "2024-01-01T00:00:00Z",
+      "last_seen": "2024-01-01T01:00:00Z"
+    },
+    {
+      "ip": "10.0.2.50",
+      "mac": "aa:bb:cc:00:02:32",
+      "hostname": "ws-remote-50",
+      "first_seen": "2024-01-01T00:00:00Z",
+      "last_seen": "2024-01-01T01:00:00Z"
+    }
+  ],
+  "flows": [
+    {"src_ip": "10.0.0.21", "dst_ip": "10.0.0.11", "src_port": 51200, "dst_port": 445, "ts": "2024-01-01T00:10:00Z", "count": 12},
+    {"src_ip": "10.0.0.21", "dst_ip": "10.0.0.5", "src_port": 51300, "dst_port": 389, "ts": "2024-01-01T00:15:00Z", "count": 4},
+    {"src_ip": "10.0.0.11", "dst_ip": "10.0.0.21", "src_port": 445, "dst_port": 51200, "ts": "2024-01-01T00:20:00Z", "count": 3},
+    {"src_ip": "10.0.0.21", "dst_ip": "10.0.1.1", "src_port": 51400, "dst_port": 443, "ts": "2024-01-01T00:25:00Z", "count": 2},
+    {"src_ip": "10.0.1.1", "dst_ip": "10.0.0.5", "src_port": 50000, "dst_port": 53, "ts": "2024-01-01T00:30:00Z", "count": 8},
+    {"src_ip": "10.0.1.1", "dst_ip": "10.0.2.50", "src_port": 50001, "dst_port": 443, "ts": "2024-01-01T00:31:00Z", "count": 5},
+    {"src_ip": "10.0.2.50", "dst_ip": "10.0.0.5", "src_port": 51500, "dst_port": 53, "ts": "2024-01-01T00:32:00Z", "count": 6}
+  ]
+}

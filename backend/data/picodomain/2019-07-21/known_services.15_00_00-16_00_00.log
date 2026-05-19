@@ -1,0 +1,7 @@
+{"ts":"2019-07-21T15:02:54.382634Z","host":"10.99.99.5","port_num":49672,"port_proto":"tcp","service":["DCE_RPC"]}
+{"ts":"2019-07-21T15:24:51.711910Z","host":"10.99.99.27","port_num":3389,"port_proto":"tcp","service":["SSL"]}
+{"ts":"2019-07-21T15:47:47.917035Z","host":"10.99.99.152","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
+{"ts":"2019-07-21T15:47:48.061790Z","host":"10.99.99.152","port_num":49154,"port_proto":"tcp","service":["DCE_RPC"]}
+{"ts":"2019-07-21T15:51:53.456488Z","host":"10.99.99.30","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
+{"ts":"2019-07-21T15:51:53.485886Z","host":"10.99.99.30","port_num":49154,"port_proto":"tcp","service":["DCE_RPC"]}
+{"ts":"2019-07-21T15:51:58.561068Z","host":"10.99.99.5","port_num":49667,"port_proto":"tcp","service":["DCE_RPC"]}

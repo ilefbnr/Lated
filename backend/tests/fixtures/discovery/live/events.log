@@ -1,0 +1,5 @@
+# live passive fixture — NDJSON events
+{"kind": "arp", "ip": "10.0.2.10", "mac": "aa:bb:cc:00:02:0a", "ts": "2024-02-01T00:00:00Z"}
+{"kind": "dns", "ip": "10.0.2.10", "hostname": "ws-east-10", "ts": "2024-02-01T00:00:05Z"}
+{"kind": "host", "ip": "10.0.2.20", "mac": "aa:bb:cc:00:02:14", "hostname": "fs-east-20", "ts": "2024-02-01T00:01:00Z"}
+{"kind": "flow", "src_ip": "10.0.2.10", "dst_ip": "10.0.2.20", "src_port": 51000, "dst_port": 445, "ts": "2024-02-01T00:02:00Z", "count": 4}

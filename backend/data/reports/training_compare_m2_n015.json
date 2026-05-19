@@ -1,0 +1,36 @@
+{
+  "table": "| Regime                           | AUC-ROC | AUC-PR | Rec@1%FPR | Rec@10%FPR | Eval loss |\n| -------------------------------- | ------- | ------ | --------- | ---------- | --------- |\n| A. SSL only (link-pred)          | \u2014       | \u2014      | \u2014         | \u2014          | 0.436     |\n| B. Semi-supervised (SSL + head)  | 0.760   | 0.018  | 0.017     | 0.210      | 17.314    |\n| C. Fully supervised (end-to-end) | 0.938   | 0.134  | 0.200     | 0.767      | 0.833     |",
+  "rows": [
+    {
+      "regime": "A. SSL only (link-pred)",
+      "loss": 0.43627369994818777,
+      "auc_roc": NaN,
+      "auc_pr": NaN,
+      "recall_at_1pct_fpr": NaN,
+      "recall_at_10pct_fpr": NaN,
+      "n_examples": 191750
+    },
+    {
+      "regime": "B. Semi-supervised (SSL + head)",
+      "epoch": 10,
+      "split": "eval",
+      "auc_roc": 0.7603454815990159,
+      "auc_pr": 0.01827461204676725,
+      "recall_at_1pct_fpr": 0.017241379310344827,
+      "recall_at_10pct_fpr": 0.2103448275862069,
+      "loss": 17.31448856609202,
+      "n_examples": 65168
+    },
+    {
+      "regime": "C. Fully supervised (end-to-end)",
+      "epoch": 10,
+      "split": "eval",
+      "auc_roc": 0.9376840979321449,
+      "auc_pr": 0.13393384276541803,
+      "recall_at_1pct_fpr": 0.2,
+      "recall_at_10pct_fpr": 0.7672413793103449,
+      "loss": 0.8328683585593449,
+      "n_examples": 65168
+    }
+  ]
+}

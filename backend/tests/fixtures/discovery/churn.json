@@ -1,0 +1,19 @@
+{
+  "hosts": [
+    {
+      "ip": "10.0.0.50",
+      "mac": "aa:bb:cc:00:00:aa",
+      "hostname": "laptop-a",
+      "first_seen": "2024-01-01T08:00:00Z",
+      "last_seen": "2024-01-01T09:00:00Z"
+    },
+    {
+      "ip": "10.0.0.50",
+      "mac": "aa:bb:cc:00:00:bb",
+      "hostname": "laptop-b",
+      "first_seen": "2024-01-01T18:00:00Z",
+      "last_seen": "2024-01-01T19:00:00Z"
+    }
+  ],
+  "flows": []
+}

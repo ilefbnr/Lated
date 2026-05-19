@@ -1,0 +1,3 @@
+{"ts":"2019-07-20T15:02:55.533979Z","host":"10.99.99.160","software_type":"HTTP::BROWSER","name":"MSIE","version.major":8,"version.minor":0,"unparsed_version":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"}
+{"ts":"2019-07-20T15:04:59.941183Z","host":"10.99.99.29","software_type":"HTTP::BROWSER","name":"<unknown browser>","unparsed_version":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.17763.134"}
+{"ts":"2019-07-20T15:57:18.600141Z","host":"10.99.99.29","software_type":"HTTP::BROWSER","name":"DavClnt","unparsed_version":"DavClnt"}
