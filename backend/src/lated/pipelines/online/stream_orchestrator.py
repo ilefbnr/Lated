@@ -47,6 +47,8 @@ class PipelineResult:
     snapshots: list = field(default_factory=list)
     lm_scores: list = field(default_factory=list)
     recon_scores: list = field(default_factory=list)
+    smb_scores: list = field(default_factory=list)
+    rare_edge_scores: list = field(default_factory=list)
     suspicions: list = field(default_factory=list)
     correlation_results: list = field(default_factory=list)
     alerts: list = field(default_factory=list)
@@ -62,6 +64,8 @@ class StreamOrchestrator:
         ingestion,
         graph_builder,
         recon_detector,
+        smb_detector,
+        rare_edge_detector,
         lm_inference,
         fusion,
         correlation,
@@ -72,6 +76,8 @@ class StreamOrchestrator:
         self.ingestion = ingestion
         self.graph_builder = graph_builder
         self.recon_detector = recon_detector
+        self.smb_detector = smb_detector
+        self.rare_edge_detector = rare_edge_detector
         self.lm_inference = lm_inference
         self.fusion = fusion
         self.correlation = correlation
@@ -105,9 +111,21 @@ class StreamOrchestrator:
             result.errors["recon_detector"] = f"{type(exc).__name__}: {exc}"
             result.recon_scores = []
 
+        try:
+            result.smb_scores = list(self.smb_detector.run(result.flows))
+        except Exception as exc:  # noqa: BLE001
+            result.errors["smb_detector"] = f"{type(exc).__name__}: {exc}"
+            result.smb_scores = []
+
+        try:
+            result.rare_edge_scores = list(self.rare_edge_detector.run(result.flows))
+        except Exception as exc:  # noqa: BLE001
+            result.errors["rare_edge_detector"] = f"{type(exc).__name__}: {exc}"
+            result.rare_edge_scores = []
+
         # 4. Fusion joins both branches (missing branch imputed to zero).
         try:
-            result.suspicions = list(self.fusion.run(result.lm_scores, result.recon_scores))
+            result.suspicions = list(self.fusion.run(result.lm_scores, [*result.recon_scores, *result.smb_scores, *result.rare_edge_scores]))
         except Exception as exc:  # noqa: BLE001
             result.errors["fusion"] = f"{type(exc).__name__}: {exc}"
             result.suspicions = []
@@ -144,6 +162,8 @@ class StreamOrchestrator:
             "snapshots": len(result.snapshots),
             "lm_scores": len(result.lm_scores),
             "recon_scores": len(result.recon_scores),
+            "smb_scores": len(result.smb_scores),
+            "rare_edge_scores": len(result.rare_edge_scores),
             "suspicions": len(result.suspicions),
             "paths": len(result.correlation_results),
             "alerts": len(result.alerts),

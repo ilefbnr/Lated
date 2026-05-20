@@ -30,6 +30,7 @@ interface EdgeTooltipState {
   sourceLabel: string;
   targetLabel: string;
   label: string;
+  connectionType: string;
   weight?: number;
   suspicion?: number;
   srcPorts: number[];
@@ -79,19 +80,35 @@ function toElements(
   highlightedEdges: Set<string>,
   pivots: Set<string>,
 ): ElementDefinition[] {
-  const nodeElements: ElementDefinition[] = nodes.map((node) => {
-    const classes = [riskBucketClass(node.data.risk)];
-    if (pivots.has(node.data.id)) classes.push('pivot');
-    if (highlightedHosts.has(node.data.id)) classes.push('attack-host');
-    return {
-      group: 'nodes',
-      data: { ...node.data },
-      classes: classes.join(' '),
-    };
-  });
+  // Keep only hosts that actually take part in at least one edge, plus any
+  // explicitly highlighted host (attack path / pivot) so analyst selections
+  // never silently disappear. This drops the "floating dots" from the
+  // baseline registry that haven't communicated yet in the current view.
+  const connectedHosts = new Set<string>();
+  for (const edge of edges) {
+    connectedHosts.add(edge.data.source);
+    connectedHosts.add(edge.data.target);
+  }
+
+  const nodeElements: ElementDefinition[] = nodes
+    .filter((node) =>
+      connectedHosts.has(node.data.id)
+      || highlightedHosts.has(node.data.id)
+      || pivots.has(node.data.id),
+    )
+    .map((node) => {
+      const classes = [riskBucketClass(node.data.risk)];
+      if (pivots.has(node.data.id)) classes.push('pivot');
+      if (highlightedHosts.has(node.data.id)) classes.push('attack-host');
+      return {
+        group: 'nodes',
+        data: { ...node.data },
+        classes: classes.join(' '),
+      };
+    });
 
   const edgeElements: ElementDefinition[] = edges.map((edge) => {
-    const classes: string[] = [];
+    const classes: string[] = [edge.data.external ? 'edge-external' : 'edge-internal'];
     const onPath =
       highlightedEdges.has(edge.data.id) ||
       (highlightedHosts.has(edge.data.source) && highlightedHosts.has(edge.data.target));
@@ -162,6 +179,7 @@ export function AttackGraphCanvas({
         sourceLabel: nodeLabelById.get(sourceId) ?? sourceId,
         targetLabel: nodeLabelById.get(targetId) ?? targetId,
         label: String(data.label ?? `${sourceId} -> ${targetId}`),
+        connectionType: String(data.connection_type ?? (data.external ? 'external' : 'internal')),
         weight: typeof data.weight === 'number' ? data.weight : undefined,
         suspicion: typeof data.suspicion === 'number' ? data.suspicion : undefined,
         srcPorts: Array.isArray(data.src_ports) ? data.src_ports.map(Number).filter(Number.isFinite) : [],
@@ -193,13 +211,29 @@ export function AttackGraphCanvas({
       setHoveredEdge(null);
     };
 
+    const handleNodeOver = (event: any) => {
+      const node = event.target;
+      if (!('isNode' in node) || !node.isNode()) return;
+      node.addClass('node-hover');
+    };
+
+    const handleNodeOut = (event: any) => {
+      const node = event.target;
+      if (!('isNode' in node) || !node.isNode()) return;
+      node.removeClass('node-hover');
+    };
+
     cy.on('mouseover', 'edge', handleMouseOver);
     cy.on('mouseout', 'edge', handleMouseOut);
+    cy.on('mouseover', 'node', handleNodeOver);
+    cy.on('mouseout', 'node', handleNodeOut);
     cy.on('pan zoom', handleViewportChange);
 
     return () => {
       cy.off('mouseover', 'edge', handleMouseOver);
       cy.off('mouseout', 'edge', handleMouseOut);
+      cy.off('mouseover', 'node', handleNodeOver);
+      cy.off('mouseout', 'node', handleNodeOut);
       cy.off('pan zoom', handleViewportChange);
     };
   }, [elements, nodeLabelById]);
@@ -262,6 +296,9 @@ export function AttackGraphCanvas({
             {hoveredEdge.sourceLabel} <span className="text-muted">→</span> {hoveredEdge.targetLabel}
           </p>
           <p className="mt-1 text-[11px] text-muted">{hoveredEdge.label}</p>
+          <p className="mt-1 text-[11px] text-muted">
+            Each edge represents an aggregated communication link from the source host to the destination host.
+          </p>
           {hoveredEdge.serviceLabels.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {hoveredEdge.serviceLabels.map((service) => (
@@ -286,6 +323,10 @@ export function AttackGraphCanvas({
             <span>Attack path</span>
             <span className="text-right font-mono text-ink">
               {hoveredEdge.onAttackPath ? 'yes' : 'no'}
+            </span>
+            <span>Type</span>
+            <span className="text-right font-mono text-ink capitalize">
+              {hoveredEdge.connectionType}
             </span>
             <span>Ports</span>
             <span className="text-right font-mono text-ink">

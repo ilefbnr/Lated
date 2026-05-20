@@ -20,6 +20,7 @@ export interface GraphNode {
     os_guess?: string | null;
     gateway?: boolean;
     service?: boolean;
+    external?: boolean;
   };
 }
 
@@ -35,6 +36,8 @@ export interface GraphEdge {
     dst_ports?: number[];
     protocols?: string[];
     service_labels?: string[];
+    external?: boolean;
+    connection_type?: 'internal' | 'external' | string;
     onAttackPath?: boolean;
     pathId?: string;
   };

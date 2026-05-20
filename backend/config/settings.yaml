@@ -39,13 +39,16 @@ discovery:
 
 # --- Ingestion ---------------------------------------------------------------
 ingestion:
-  mode: replay              # replay | live
-  source: zeek              # pcap | zeek | netflow
-  pcap_interface: ""        # only used when source = pcap
-  pcap_path: ""             # used in replay mode for pcap file input
-  zeek_log_dir: /data/zeek
+  mode: replay_live       # replay | live | replay_live
+  source: zeek            # pcap | zeek | netflow
+  pcap_interface: ""      # only used when source = pcap
+  pcap_path: ""           # used in replay mode for pcap file input
+  zeek_log_dir: "C:\\Users\\ilefb\\OneDrive\\Bureau\\LateD\\backend\\data\\picodomain\\2019-07-19"
   netflow_port: 2055
   batch_size: 1000
+  # replay_live only: N archived-time seconds per 1 wall-clock second.
+  # ×1 = real-time, ×60 = one minute of wall-clock plays one hour of logs.
+  replay_speed: 60
 
 # --- Temporal graph ----------------------------------------------------------
 graph:

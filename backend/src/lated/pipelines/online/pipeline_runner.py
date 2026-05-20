@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from typing import Any
 
@@ -22,8 +23,11 @@ from lated.correlation.correlation_store import CorrelationStore, session_factor
 from lated.correlation.graph_adjacency import GraphAdjacency, StaticAdjacency
 from lated.detection.fusion.risk_scorer import RiskScorer
 from lated.detection.fusion.suspicion_fusion import SuspicionFusion
+from lated.detection.protocols.rare_edge_detector import RareEdgeDetector
+from lated.detection.protocols.smb_detector import SMBDetector
 from lated.detection.recon.recon_detector import ReconDetector
 from lated.detection.tgnn.tgnn_inference import TGNNInference
+from lated.detection.tgnn.model_loader import ModelLoader
 from lated.discovery.host_registry import HostRegistry
 from lated.graph.graph_builder import GraphBuilder
 from lated.graph.graph_store import GraphStore
@@ -45,6 +49,8 @@ class PipelineComponents:
     graph_builder: GraphBuilder
     graph_store: GraphStore
     recon_detector: ReconDetector
+    smb_detector: SMBDetector
+    rare_edge_detector: RareEdgeDetector
     lm_inference: TGNNInference
     fusion: SuspicionFusion
     correlation: CorrelationEngine
@@ -86,7 +92,28 @@ def build_components(
         window_seconds=config.graph.snapshot_window_seconds,
     )
 
-    lm_inference = TGNNInference()
+    smb_detector = SMBDetector(
+        window_seconds=config.graph.snapshot_window_seconds,
+    )
+
+    backend_root = Path(__file__).resolve().parents[4]
+    baseline_path = backend_root / "data" / "baseline" / "latest.json"
+    rare_edge_detector = RareEdgeDetector.from_baseline_path(
+        baseline_path,
+        window_seconds=config.graph.snapshot_window_seconds,
+    )
+
+    artifact = None
+    tgnn_cfg = getattr(getattr(config, "detection", None), "tgnn", None)
+    model_path_value = getattr(tgnn_cfg, "model_path", "") if tgnn_cfg is not None else ""
+    model_path = Path(model_path_value or "")
+    secret_key = os.environ.get("LATED_MODEL_SECRET_KEY") or os.environ.get("LATED_SECRET_KEY")
+    if model_path_value and model_path.exists() and secret_key:
+        try:
+            artifact = ModelLoader(secret_key=secret_key).load(model_path)
+        except Exception:
+            artifact = None
+    lm_inference = TGNNInference(artifact=artifact)
 
     risk_scorer = RiskScorer(decay_per_hour=config.thresholds.fusion.host_risk_decay_per_hour)
     fusion = SuspicionFusion(config.detection.fusion, risk_scorer)
@@ -120,6 +147,8 @@ def build_components(
         ingestion=ingestion,
         graph_builder=graph_builder,
         recon_detector=recon_detector,
+        smb_detector=smb_detector,
+        rare_edge_detector=rare_edge_detector,
         lm_inference=lm_inference,
         fusion=fusion,
         correlation=correlation,
@@ -134,6 +163,8 @@ def build_components(
         graph_builder=graph_builder,
         graph_store=graph_store,
         recon_detector=recon_detector,
+        smb_detector=smb_detector,
+        rare_edge_detector=rare_edge_detector,
         lm_inference=lm_inference,
         fusion=fusion,
         correlation=correlation,

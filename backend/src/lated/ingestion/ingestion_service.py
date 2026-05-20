@@ -22,10 +22,12 @@ from lated.ingestion.canonical_schema import CanonicalSchema
 from lated.ingestion.flow_normalizer import FlowNormalizer
 from lated.ingestion.flow_store import FlowStore
 from lated.ingestion.flow_validator import FlowValidator
+from lated.ingestion.netflow_parser import NetFlowParser
+from lated.ingestion.pcap_parser import PCAPParser
 from lated.ingestion.zeek_parser import ZeekParser
 
 
-SUPPORTED_SOURCES = {"zeek"}
+SUPPORTED_SOURCES = {"zeek", "pcap", "netflow"}
 
 
 class IngestionMetrics:
@@ -102,5 +104,23 @@ class IngestionService:
                 raise IngestionError(
                     f"ingestion.zeek_log_dir not found: {zeek_dir}"
                 )
-            return ZeekParser(zeek_dir)
+            return ZeekParser(zeek_dir, mode=getattr(self.config, "mode", "replay"))
+        if source == "pcap":
+            candidate = Path(self.config.pcap_path or "")
+            if getattr(self.config, "mode", "replay") == "replay":
+                if not candidate.exists():
+                    raise IngestionError(f"ingestion.pcap_path not found: {candidate}")
+                return PCAPParser(str(candidate), mode="replay")
+            iface = str(self.config.pcap_interface or "")
+            if not iface:
+                raise IngestionError("ingestion.pcap_interface is required in live pcap mode")
+            return PCAPParser(iface, mode="live")
+        if source == "netflow":
+            replay_path = str(self.config.pcap_path or self.config.zeek_log_dir or "")
+            return NetFlowParser(
+                port=int(self.config.netflow_port),
+                allowlist=[],
+                source_path=replay_path or None,
+                mode=getattr(self.config, "mode", "replay"),
+            )
         raise IngestionError(f"Unhandled source: {source}")

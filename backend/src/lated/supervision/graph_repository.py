@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 from pathlib import Path
 
@@ -54,6 +55,7 @@ class GraphRepository:
         risks = self._load_host_risks()
         gateway_ids = set(data.get("gateways", []))
         service_ids = set(data.get("services", []))
+        nodes_by_id = {node["host_id"]: node for node in data.get("nodes", [])}
         nodes = [
             {
                 "data": {
@@ -68,6 +70,7 @@ class GraphRepository:
                     "os_guess": node.get("os_guess"),
                     "gateway": node["host_id"] in gateway_ids,
                     "service": node["host_id"] in service_ids,
+                    "external": self._host_is_external(node),
                 }
             }
             for node in data.get("nodes", [])
@@ -84,6 +87,8 @@ class GraphRepository:
                     "dst_ports": list(edge.get("dst_ports", [])),
                     "protocols": list(edge.get("protocols", [])),
                     "service_labels": list(edge.get("service_labels", [])),
+                    "external": self._edge_is_external(edge, nodes_by_id),
+                    "connection_type": "external" if self._edge_is_external(edge, nodes_by_id) else "internal",
                 }
             }
             for edge in data.get("edges", [])
@@ -118,6 +123,22 @@ class GraphRepository:
         if protocols:
             return " / ".join(protocols)
         return "communication"
+
+    @staticmethod
+    def _host_is_external(node: dict) -> bool:
+        for raw_ip in list(node.get("ip_addresses", [])):
+            try:
+                if ipaddress.ip_address(str(raw_ip)).is_private:
+                    return False
+            except ValueError:
+                continue
+        return bool(node.get("ip_addresses"))
+
+    @classmethod
+    def _edge_is_external(cls, edge: dict, nodes_by_id: dict[str, dict]) -> bool:
+        src = nodes_by_id.get(edge.get("src"), {})
+        dst = nodes_by_id.get(edge.get("dst"), {})
+        return cls._host_is_external(src) or cls._host_is_external(dst)
 
     def _load_host_risks(self) -> dict[str, float]:
         try:

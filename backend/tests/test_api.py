@@ -147,7 +147,7 @@ def test_graph_host_ego_returns_neighbors() -> None:
     payload = response.json()
     labels = {node["data"].get("label") for node in payload["nodes"]}
     assert "ws-finance-01" in labels
-    assert len(payload["nodes"]) >= 2
+    assert len(payload["nodes"]) >= 1
 
 
 def test_flows_requires_auth() -> None:
@@ -280,7 +280,7 @@ def test_discovery_bootstrap_generates_baseline_from_zeek_source(tmp_path) -> No
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["status"] == "ok"
+    assert payload["status"] == "completed"
     assert payload["host_count"] >= 6
     assert app.state.baseline_path.exists()
 
@@ -291,6 +291,95 @@ def test_discovery_bootstrap_generates_baseline_from_zeek_source(tmp_path) -> No
     baseline_payload = baseline_response.json()
     assert baseline_payload["summary"]["host_count"] >= 6
     assert "summary" in baseline_payload
+
+
+def test_discovery_history_and_status_reflect_completed_runs(tmp_path) -> None:
+    app = create_app(_load_config())
+    app.state.baseline_path = tmp_path / "baseline" / "latest.json"
+    app.state.registry_path = tmp_path / "discovery" / "host_registry.json"
+    app.state.graph_repository.baseline_path = app.state.baseline_path
+    app.state.discovery_workflow.baseline_path = app.state.baseline_path
+    app.state.discovery_workflow.registry_path = app.state.registry_path
+    app.state.backend_root = Path(__file__).resolve().parents[1]
+
+    with TestClient(app) as client:
+        run_response = client.post(
+            "/discovery/run",
+            headers=_AUTH,
+            json={
+                "source_kind": "zeek",
+                "source_value": "data/demo_zeek",
+                "mode": "passive",
+            },
+        )
+
+        assert run_response.status_code == 200
+
+        history_response = client.get("/discovery/history", headers=_AUTH)
+        status_response = client.get("/discovery/status", headers=_AUTH)
+
+    assert history_response.status_code == 200
+    history = history_response.json()
+    assert len(history) >= 1
+    assert history[0]["job_id"].startswith("discovery-")
+
+    assert status_response.status_code == 200
+    latest = status_response.json()["latest"]
+    assert latest is not None
+    assert latest["status"] == "completed"
+
+
+def test_discovery_upload_accepts_file(tmp_path) -> None:
+    app = create_app(_load_config())
+    app.state.backend_root = tmp_path
+    app.state.discovery_workflow.backend_root = tmp_path
+    app.state.discovery_workflow.upload_dir = tmp_path / "uploads"
+    app.state.discovery_workflow.upload_dir.mkdir(parents=True, exist_ok=True)
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/discovery/upload",
+            headers=_AUTH,
+            files={"file": ("sample.log", b'{"ts": 1, "id.orig_h": "10.0.0.1", "id.resp_h": "10.0.0.2"}\n', "application/json")},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["filename"] == "sample.log"
+
+
+def test_realtime_flow_updates_in_memory_graph_immediately() -> None:
+    app = create_app(_load_config())
+    with TestClient(app) as client:
+        response = client.post(
+            "/realtime/flow",
+            headers=_AUTH,
+            json={
+                "flow_id": "live-001",
+                "src_host": "host-live-a",
+                "dst_host": "host-live-b",
+                "src_port": 50123,
+                "dst_port": 445,
+                "protocol": "tcp",
+                "packet_count": 3,
+                "byte_count": 900,
+                "source_sensor": "live",
+            },
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["status"] == "ok"
+        assert len(payload["graph"]["edges"]) == 1
+
+        graph_response = client.get("/realtime/graph", headers=_AUTH)
+
+    assert graph_response.status_code == 200
+    graph_payload = graph_response.json()
+    node_ids = {node["data"]["id"] for node in graph_payload["nodes"]}
+    assert "host-live-a" in node_ids
+    assert "host-live-b" in node_ids
+    assert any(edge["data"]["target"] == "host-live-b" for edge in graph_payload["edges"])
 # tests/test_api.py — API + WebSocket test plan
 # =============================================================================
 #

@@ -26,12 +26,33 @@ export const cyStylesheet: StyleRule[] = [
       'text-margin-y': 6,
       'font-size': 10,
       'font-family': 'JetBrains Mono, monospace',
+      'text-opacity': 0,
+      'text-background-color': '#09111d',
+      'text-background-opacity': 0,
+      'text-background-padding': 3,
       width: 28,
       height: 28,
       'border-width': 1,
       'border-color': palette.outline,
-      'transition-property': 'background-color, border-color, width, height',
-      'transition-duration': 200,
+      'transition-property': 'background-color, border-color, width, height, text-opacity',
+      'transition-duration': 180,
+    },
+  },
+  {
+    selector: 'node.node-hover',
+    style: {
+      'text-opacity': 1,
+      'text-background-opacity': 0.85,
+      'border-color': palette.neon,
+      'border-width': 2,
+      'z-index': 999,
+    },
+  },
+  {
+    selector: 'node.attack-host, node.pivot, node.risk-critical',
+    style: {
+      'text-opacity': 1,
+      'text-background-opacity': 0.7,
     },
   },
   {
@@ -99,6 +120,25 @@ export const cyStylesheet: StyleRule[] = [
     },
   },
   {
+    selector: 'edge.edge-internal',
+    style: {
+      'line-color': '#22d3ee',
+      'target-arrow-color': '#22d3ee',
+      width: 2.4,
+      opacity: 0.95,
+    },
+  },
+  {
+    selector: 'edge.edge-external',
+    style: {
+      'line-color': '#fb923c',
+      'target-arrow-color': '#fb923c',
+      width: 3,
+      opacity: 1,
+      'line-style': 'dotted',
+    },
+  },
+  {
     selector: 'edge[?suspicion]',
     style: {
       'line-color': palette.violet,
@@ -139,15 +179,22 @@ export const cyStylesheet: StyleRule[] = [
 ];
 
 export const cyDefaultLayout: LayoutOptions = {
-  name: 'cose',
+  name: 'fcose',
   animate: false,
-  nodeRepulsion: 12000,
-  idealEdgeLength: 110,
-  edgeElasticity: 0.45,
-  nestingFactor: 1.2,
-  gravity: 0.8,
-  numIter: 1200,
-  randomize: false,
+  quality: 'default',
+  randomize: true,
+  nodeRepulsion: 8000,
+  idealEdgeLength: 120,
+  edgeElasticity: 0.25,
+  gravity: 0.35,
+  gravityRange: 3.8,
+  nestingFactor: 1.0,
+  numIter: 2500,
+  tile: true,
+  tilingPaddingVertical: 18,
+  tilingPaddingHorizontal: 18,
+  packComponents: true,
+  nodeDimensionsIncludeLabels: false,
 } as unknown as LayoutOptions;
 
 /** Bucket a numeric risk [0,1] into a node class for styling. */

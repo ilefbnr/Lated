@@ -58,7 +58,7 @@ export default function LoginPage() {
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted">Authenticate</p>
           <h1 className="text-2xl font-semibold text-cyan">LateD SOC Console</h1>
           <p className="text-xs text-muted">
-            Dev environment: pick a role to impersonate, or paste a bearer token.
+            Pick a local role token or paste a bearer/JWT token.
           </p>
         </div>
 

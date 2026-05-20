@@ -184,6 +184,8 @@ def test_replay_pipeline_runs_end_to_end(tmp_path: Path) -> None:
     assert result.metrics["flows"] > 0
     assert result.metrics["snapshots"] > 0
     assert result.metrics["recon_scores"] > 0
+    assert result.metrics["smb_scores"] >= 0
+    assert result.metrics["rare_edge_scores"] >= 0
     # The placeholder LM should score at least one node in the busy window
     assert result.metrics["lm_scores"] > 0
     assert result.metrics["alerts"] > 0

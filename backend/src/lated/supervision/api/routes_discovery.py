@@ -6,12 +6,19 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 
 from lated.discovery.discovery_service import DiscoveryService
 from lated.supervision.auth import AuthUser, get_current_user
 
 router = APIRouter(prefix="/discovery", tags=["discovery"], dependencies=[Depends(get_current_user)])
+
+
+def _sync_workflow_paths(request: Request) -> None:
+    workflow = request.app.state.discovery_workflow
+    workflow.backend_root = request.app.state.backend_root
+    workflow.baseline_path = request.app.state.baseline_path
+    workflow.registry_path = request.app.state.registry_path
 
 
 def _resolve_passive_source(config, backend_root: Path) -> Path:
@@ -34,36 +41,60 @@ def _resolve_passive_source(config, backend_root: Path) -> Path:
 
 @router.post("/bootstrap")
 async def bootstrap_discovery(request: Request, user: AuthUser = Depends(get_current_user)):
-    del user
+    _sync_workflow_paths(request)
     config = request.app.state.config
     backend_root: Path = request.app.state.backend_root
     source_path = _resolve_passive_source(config, backend_root)
-
     if not source_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Passive discovery source not found: {source_path}",
-        )
-
-    service = DiscoveryService(
-        config.discovery,
-        source_path=source_path,
-        baseline_path=request.app.state.baseline_path,
-        registry_path=request.app.state.registry_path,
-        env=str(config.env),
+        raise HTTPException(status_code=404, detail=f"Passive discovery source not found: {source_path}")
+    record = request.app.state.discovery_workflow.run_job(
+        config=config,
+        source_kind=str(config.ingestion.source),
+        source_value=str(source_path),
+        actor=user.username,
     )
-    baseline = service.run()
     request.app.state.graph_repository.baseline_path = request.app.state.baseline_path
+    return {"status": "ok", **record}
 
-    return {
-        "status": "ok",
-        "source_path": str(source_path),
-        "baseline_path": str(request.app.state.baseline_path),
-        "registry_path": str(request.app.state.registry_path),
-        "generated_at": baseline.created_at,
-        "host_count": len(baseline.nodes),
-        "edge_count": len(baseline.edges),
-        "subnet_count": len(baseline.subnets),
-        "gateway_count": len(baseline.gateways),
-        "service_count": len(baseline.services),
-    }
+
+@router.get("/history")
+async def discovery_history(request: Request):
+    _sync_workflow_paths(request)
+    return request.app.state.discovery_workflow.list_history()
+
+
+@router.get("/status")
+async def discovery_status(request: Request):
+    _sync_workflow_paths(request)
+    latest = request.app.state.discovery_workflow.latest()
+    return {"latest": latest}
+
+
+@router.post("/run")
+async def run_discovery(
+    request: Request,
+    body: dict,
+    user: AuthUser = Depends(get_current_user),
+):
+    _sync_workflow_paths(request)
+    source_kind = str(body.get("source_kind") or request.app.state.config.ingestion.source)
+    source_value = str(body.get("source_value") or "")
+    if not source_value:
+        raise HTTPException(status_code=400, detail="source_value is required")
+    record = request.app.state.discovery_workflow.run_job(
+        config=request.app.state.config,
+        source_kind=source_kind,
+        source_value=source_value,
+        actor=user.username,
+        mode=str(body.get("mode") or "passive"),
+    )
+    request.app.state.graph_repository.baseline_path = request.app.state.baseline_path
+    return {"status": "ok", **record}
+
+
+@router.post("/upload")
+async def upload_discovery_source(request: Request, file: UploadFile):
+    _sync_workflow_paths(request)
+    payload = await file.read()
+    result = request.app.state.discovery_workflow.upload(file.filename or "upload.bin", payload)
+    return {"status": "ok", **result}

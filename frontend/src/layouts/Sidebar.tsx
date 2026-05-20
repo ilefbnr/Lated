@@ -13,6 +13,7 @@ import {
   ClockIcon,
   ListIcon,
   SettingsIcon,
+  RadarIcon,
 } from 'lucide-react';
 
 import type { Role } from '@/services/authService';
@@ -27,6 +28,7 @@ interface NavItem {
 
 const items: NavItem[] = [
   { href: '/overview',     label: 'Overview',     icon: ShieldAlertIcon },
+  { href: '/discovery',    label: 'Discovery',    icon: RadarIcon },
   { href: '/alerts',       label: 'Alerts',       icon: BellIcon },
   { href: '/attack-graph', label: 'Attack Graph', icon: NetworkIcon },
   { href: '/hosts',        label: 'Hosts',        icon: ServerIcon },

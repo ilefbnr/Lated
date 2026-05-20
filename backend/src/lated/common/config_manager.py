@@ -74,13 +74,14 @@ class DiscoveryConfig:
 
 @dataclass(frozen=True)
 class IngestionConfig:
-    mode: str                         # replay | live
+    mode: str                         # replay | live | replay_live
     source: str                       # pcap | zeek | netflow
     pcap_interface: str
     pcap_path: str
     zeek_log_dir: str
     netflow_port: int
     batch_size: int
+    replay_speed: float               # used only in mode=replay_live
 
 
 @dataclass(frozen=True)
@@ -329,7 +330,7 @@ class ConfigManager:
         )
 
         ingestion = IngestionConfig(
-            mode=cls._as_choice(ingestion_raw.get("mode"), "ingestion.mode", {"replay", "live"}),
+            mode=cls._as_choice(ingestion_raw.get("mode"), "ingestion.mode", {"replay", "live", "replay_live"}),
             source=cls._as_choice(ingestion_raw.get("source"), "ingestion.source", {"pcap", "zeek", "netflow"}),
             pcap_interface=str(ingestion_raw.get("pcap_interface", "")),
             pcap_path=str(ingestion_raw.get("pcap_path", "")),
@@ -341,6 +342,12 @@ class ConfigManager:
                 maximum=65535,
             ),
             batch_size=cls._as_int(ingestion_raw.get("batch_size"), "ingestion.batch_size", minimum=1),
+            replay_speed=cls._as_float(
+                ingestion_raw.get("replay_speed", 1.0),
+                "ingestion.replay_speed",
+                minimum=0.1,
+                maximum=10000.0,
+            ),
         )
 
         graph = GraphConfig(

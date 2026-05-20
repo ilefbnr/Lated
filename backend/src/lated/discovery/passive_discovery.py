@@ -202,6 +202,8 @@ class PassiveDiscovery:
         candidate = {k: v for k, v in event.items() if k != "kind"}
         candidate.setdefault("first_seen", ts)
         candidate.setdefault("last_seen", ts)
+        if not any(candidate.get(key) for key in ("ip", "hostname", "mac")):
+            return
         hosts.append(candidate)
 
     @staticmethod

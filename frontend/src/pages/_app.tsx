@@ -5,10 +5,17 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import type { AppProps } from 'next/app';
+import cytoscape from 'cytoscape';
+import fcose from 'cytoscape-fcose';
 
 import '@/styles/globals.css';
 
-import { useDiscoveryBootstrap } from '@/hooks/useDiscoveryBootstrap';
+// Register layout extension once at app boot, before any canvas mounts.
+if (typeof window !== 'undefined') {
+  // cytoscape.use is idempotent across HMR reloads in dev.
+  try { cytoscape.use(fcose); } catch { /* already registered */ }
+}
+
 import { SOCLayout } from '@/layouts/SOCLayout';
 import { useBootstrapWebSocket } from '@/hooks/useWebSocket';
 import { useUserStore } from '@/stores/userStore';
@@ -69,7 +76,6 @@ interface AuthenticatedShellProps {
 
 function AuthenticatedShell({ user, loading, children }: AuthenticatedShellProps) {
   useBootstrapWebSocket();
-  useDiscoveryBootstrap(user !== null);
 
   if (user === null) {
     return (

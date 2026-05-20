@@ -153,14 +153,13 @@ def test_ingestion_service_replay_is_deterministic() -> None:
     ]
 
 
-def test_ingestion_service_rejects_unsupported_source() -> None:
-    cfg = _IngestCfg(source="netflow")
+def test_ingestion_service_rejects_netflow_when_replay_source_path_missing() -> None:
+    cfg = _IngestCfg(source="netflow", zeek_log_dir="", pcap_path="")
     try:
-        IngestionService(cfg, HostRegistry())
-    except IngestionError as exc:
-        assert "netflow" in str(exc)
-    else:
-        raise AssertionError("Unsupported source must raise IngestionError.")
+        IngestionService(cfg, HostRegistry()).run()
+    except FileNotFoundError:
+        return
+    raise AssertionError("NetFlow replay without a source file must fail loud.")
 
 
 def test_flow_store_appends_and_reads_back(tmp_path) -> None:

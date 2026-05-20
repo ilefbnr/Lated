@@ -84,10 +84,13 @@ async def reload_thresholds(
 
 
 @router.get("/admin/model/info")
-async def model_info(user: AuthUser = Depends(require_role("supervisor"))) -> dict[str, str]:
-    """Expose current model metadata placeholder."""
+async def model_info(request: Request, user: AuthUser = Depends(require_role("supervisor"))) -> dict[str, str]:
+    """Expose current model metadata or placeholder state."""
     del user
-    return {"status": "not_loaded", "model_path": "unavailable_in_phase_1"}
+    model_path = str(getattr(request.app.state.config.detection.tgnn, "model_path", "") or "")
+    if model_path:
+        return {"status": "configured", "model_path": model_path}
+    return {"status": "placeholder", "model_path": "not_configured"}
 
 # router = APIRouter(tags=["health"])
 
