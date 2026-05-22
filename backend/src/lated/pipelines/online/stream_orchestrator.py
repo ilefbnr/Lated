@@ -49,6 +49,7 @@ class PipelineResult:
     recon_scores: list = field(default_factory=list)
     smb_scores: list = field(default_factory=list)
     rare_edge_scores: list = field(default_factory=list)
+    rule_scores: list = field(default_factory=list)
     suspicions: list = field(default_factory=list)
     correlation_results: list = field(default_factory=list)
     alerts: list = field(default_factory=list)
@@ -72,6 +73,7 @@ class StreamOrchestrator:
         alert_engine,
         correlation_store=None,
         publisher=None,
+        mitre_rules_detector=None,
     ):
         self.ingestion = ingestion
         self.graph_builder = graph_builder
@@ -84,6 +86,7 @@ class StreamOrchestrator:
         self.alert_engine = alert_engine
         self.correlation_store = correlation_store
         self.publisher = publisher
+        self.mitre_rules_detector = mitre_rules_detector
 
     def run_replay(self) -> PipelineResult:
         result = PipelineResult()
@@ -99,7 +102,13 @@ class StreamOrchestrator:
             result.snapshots = []
 
         try:
-            result.lm_scores = list(self.lm_inference.run(result.snapshots))
+            # Prefer event-based real TGN inference when the model is loaded;
+            # the placeholder structural scorer over snapshots is the fallback.
+            tgn_runtime = getattr(self.lm_inference, "_tgn_runtime", None)
+            if tgn_runtime is not None and hasattr(self.lm_inference, "score_flows"):
+                result.lm_scores = list(self.lm_inference.score_flows(result.flows))
+            else:
+                result.lm_scores = list(self.lm_inference.run(result.snapshots))
         except Exception as exc:  # noqa: BLE001
             result.errors["lm_inference"] = f"{type(exc).__name__}: {exc}"
             result.lm_scores = []
@@ -123,9 +132,24 @@ class StreamOrchestrator:
             result.errors["rare_edge_detector"] = f"{type(exc).__name__}: {exc}"
             result.rare_edge_scores = []
 
+        if self.mitre_rules_detector is not None:
+            try:
+                result.rule_scores = list(self.mitre_rules_detector.run(result.flows))
+            except Exception as exc:  # noqa: BLE001
+                result.errors["mitre_rules_detector"] = f"{type(exc).__name__}: {exc}"
+                result.rule_scores = []
+
         # 4. Fusion joins both branches (missing branch imputed to zero).
         try:
-            result.suspicions = list(self.fusion.run(result.lm_scores, [*result.recon_scores, *result.smb_scores, *result.rare_edge_scores]))
+            result.suspicions = list(self.fusion.run(
+                result.lm_scores,
+                [
+                    *result.recon_scores,
+                    *result.smb_scores,
+                    *result.rare_edge_scores,
+                    *result.rule_scores,
+                ],
+            ))
         except Exception as exc:  # noqa: BLE001
             result.errors["fusion"] = f"{type(exc).__name__}: {exc}"
             result.suspicions = []
@@ -164,6 +188,7 @@ class StreamOrchestrator:
             "recon_scores": len(result.recon_scores),
             "smb_scores": len(result.smb_scores),
             "rare_edge_scores": len(result.rare_edge_scores),
+            "rule_scores": len(result.rule_scores),
             "suspicions": len(result.suspicions),
             "paths": len(result.correlation_results),
             "alerts": len(result.alerts),

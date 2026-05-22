@@ -12,6 +12,7 @@ from lated.common.schemas import WSEvent, WSEventName, WSChannel
 from lated.ingestion.canonical_schema import CanonicalSchema
 from lated.ingestion.flow_normalizer import FlowNormalizer
 from lated.ingestion.flow_validator import FlowValidator
+from lated.ingestion.live_enricher import LiveZeekEnricher
 from lated.ingestion.zeek_parser import ZeekParser
 
 
@@ -25,11 +26,13 @@ class ZeekLiveRuntime:
         host_registry,
         realtime_graph,
         ws_channels,
+        detection_pipeline=None,
     ):
         self.config = config
         self.host_registry = host_registry or HostRegistry()
         self.realtime_graph = realtime_graph
         self.ws_channels = ws_channels
+        self.detection_pipeline = detection_pipeline
         self.normalizer = FlowNormalizer(self.host_registry)
         self.validator = FlowValidator()
         self._thread: threading.Thread | None = None
@@ -46,27 +49,45 @@ class ZeekLiveRuntime:
         self._stop.set()
         if self._thread is not None:
             self._thread.join(timeout=2.0)
+        # Flush any remaining buffered flows in the detection pipeline.
+        if self.detection_pipeline is not None:
+            try:
+                self.detection_pipeline.flush()
+            except Exception:
+                pass
 
     def _run_loop(self) -> None:
         ingestion = self.config.ingestion
+        log_types = list(getattr(ingestion, "zeek_log_types", None) or ["conn"])
         parser = ZeekParser(
             ingestion.zeek_log_dir,
             mode=str(ingestion.mode),
             poll_interval_seconds=0.5,
             max_idle_seconds=3600,
             replay_speed=float(getattr(ingestion, "replay_speed", 1.0)),
+            log_types=log_types,
         )
-        for raw in parser.records():
+        enricher = LiveZeekEnricher()
+        # `enrich_stream` consumes raw multi-log records, buffers enrichment
+        # by uid, and yields only conn records — each carrying an
+        # `enrichment` dict that FlowNormalizer will propagate.
+        for conn_raw in enricher.enrich_stream(parser.records()):
             if self._stop.is_set():
                 return
             try:
-                normalized = self.normalizer.normalize(raw, source_sensor="zeek")
+                normalized = self.normalizer.normalize(conn_raw, source_sensor="zeek")
                 ok, _reason = self.validator.is_valid(normalized)
                 if not ok:
                     continue
                 flow = CanonicalSchema.from_normalized(normalized)
                 self.realtime_graph.ingest(flow)
                 self._publish_flow(flow.model_dump(mode="json"))
+                if self.detection_pipeline is not None:
+                    try:
+                        self.detection_pipeline.ingest(flow)
+                    except Exception:
+                        # Detection failure must not stop the live graph.
+                        pass
             except Exception:
                 continue
 

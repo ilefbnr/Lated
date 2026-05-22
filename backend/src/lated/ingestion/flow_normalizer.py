@@ -54,6 +54,10 @@ class FlowNormalizer:
             src_ip, dst_ip, src_port, dst_port, ts
         )
 
+        enrichment = raw.get("enrichment")
+        if not isinstance(enrichment, dict):
+            enrichment = {}
+
         return {
             "flow_id": flow_id,
             "ts": ts.isoformat() if isinstance(ts, datetime) else ts,
@@ -66,6 +70,7 @@ class FlowNormalizer:
             "packet_count": packet_count if packet_count is not None else 0,
             "byte_count": byte_count if byte_count is not None else 0,
             "source_sensor": source_sensor,
+            "enrichment": enrichment,
         }
 
     def _resolve(self, ip: str, ts: datetime | None) -> str | None:

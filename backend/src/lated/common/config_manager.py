@@ -82,6 +82,7 @@ class IngestionConfig:
     netflow_port: int
     batch_size: int
     replay_speed: float               # used only in mode=replay_live
+    zeek_log_types: list[str]         # which Zeek logs to tail in live/replay_live
 
 
 @dataclass(frozen=True)
@@ -97,6 +98,7 @@ class TgnnConfig:
     model_path: str
     device: str
     batch_size: int
+    node_mapping_path: str = ""
 
 
 @dataclass(frozen=True)
@@ -348,6 +350,13 @@ class ConfigManager:
                 minimum=0.1,
                 maximum=10000.0,
             ),
+            zeek_log_types=cls._as_str_list(
+                ingestion_raw.get(
+                    "zeek_log_types",
+                    ["conn", "smb_files", "smb_mapping", "dce_rpc", "ntlm", "kerberos"],
+                ),
+                "ingestion.zeek_log_types",
+            ),
         )
 
         graph = GraphConfig(
@@ -382,6 +391,7 @@ class ConfigManager:
                     "detection.tgnn.batch_size",
                     minimum=1,
                 ),
+                node_mapping_path=str(detection_tgnn_raw.get("node_mapping_path", "")),
             ),
             recon=ReconConfig(
                 window_seconds=cls._as_int(

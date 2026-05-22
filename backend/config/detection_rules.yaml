@@ -1,0 +1,193 @@
+# =============================================================================
+# detection_rules.yaml — declarative MITRE-aligned lateral movement catalog
+# =============================================================================
+#
+# Each rule is a per-flow predicate. When ALL conditions match a flow, the
+# engine emits a hit with the rule's score and MITRE tags. Hits are fed
+# into SuspicionFusion as part of the heuristic branch.
+#
+# CONDITION DSL
+# -------------
+# field   : dotted path into the flow record (e.g. "dst_port",
+#           "enrichment.admin_share", "enrichment.dce_endpoints").
+# op      : equals | not_equals | in | not_in | contains | contains_any
+#           | greater_than | less_than | exists | hostname_differs
+# value   : literal compared against the resolved field. For "contains_any"
+#           pass a list. For "hostname_differs" no value needed; the engine
+#           compares enrichment.ntlm_client_hostname to the resolved src
+#           host's hostname.
+#
+# SCHEMA
+# ------
+# rules:
+#   - id          unique slug ("LM-001", "T1003.006-DCSync"…)
+#     description short SOC-readable text
+#     mitre_tags  list of MITRE ATT&CK technique IDs
+#     score       base score in [0,1]; engine clamps if rule adds bonuses
+#     subject     "src" (default) or "dst" — which host owns the suspicion
+#     conditions  list of {field, op, value}
+#     signals     list of triggered_signals strings attached to the hit
+# =============================================================================
+
+rules:
+
+  # --------------------------------------------------------- T1021.002 SMB
+  - id: LM-001
+    description: "SMB write on admin share (ADMIN$/C$/IPC$)"
+    mitre_tags: ["T1021.002"]
+    score: 0.6
+    subject: src
+    signals: ["smb_admin_share_access"]
+    conditions:
+      - field: enrichment.admin_share
+        op: equals
+        value: true
+      - field: dst_port
+        op: in
+        value: [139, 445]
+
+  # ----------------------------------------------------- T1570 Tool Transfer
+  - id: LM-002
+    description: "Portable executable dropped over SMB to a peer"
+    mitre_tags: ["T1570", "T1021.002"]
+    score: 0.8
+    subject: src
+    signals: ["smb_pe_drop"]
+    conditions:
+      - field: enrichment.has_pe_transfer
+        op: equals
+        value: true
+      - field: dst_port
+        op: in
+        value: [139, 445]
+
+  # -------------------------------------------------------- T1003.006 DCSync
+  - id: LM-003
+    description: "DCSync attempt — drsuapi replication call"
+    mitre_tags: ["T1003.006"]
+    score: 0.95
+    subject: src
+    signals: ["dcsync_drsuapi"]
+    conditions:
+      - field: enrichment.dce_endpoints
+        op: contains
+        value: drsuapi
+
+  # ---------------------------------------------------- T1569.002 PsExec-like
+  - id: LM-004
+    description: "Remote service creation pattern (PsExec-like: svcctl on admin share)"
+    mitre_tags: ["T1569.002", "T1021.002"]
+    score: 0.85
+    subject: src
+    signals: ["psexec_pattern"]
+    conditions:
+      - field: enrichment.dce_endpoints
+        op: contains
+        value: svcctl
+      - field: enrichment.admin_share
+        op: equals
+        value: true
+
+  # -------------------------------------------------- T1087.002 AD enum SAMR
+  - id: LM-005
+    description: "Account enumeration via SAMR over DCE-RPC"
+    mitre_tags: ["T1087.002"]
+    score: 0.55
+    subject: src
+    signals: ["samr_enumeration"]
+    conditions:
+      - field: enrichment.dce_endpoints
+        op: contains
+        value: samr
+
+  # ------------------------------------------- T1550.002 Pass-the-Hash NTLM
+  - id: LM-006
+    description: "NTLM auth succeeded with client hostname mismatch (PtH signal)"
+    mitre_tags: ["T1550.002"]
+    score: 0.75
+    subject: src
+    signals: ["ntlm_hostname_mismatch"]
+    conditions:
+      - field: enrichment.has_ntlm
+        op: equals
+        value: true
+      - field: enrichment.ntlm_success
+        op: equals
+        value: true
+      - field: enrichment.ntlm_client_hostname
+        op: hostname_differs
+
+  # --------------------------------------------------- T1558.003 Kerberoasting
+  - id: LM-007
+    description: "Kerberos TGS request for a service ticket (potential Kerberoasting)"
+    mitre_tags: ["T1558.003"]
+    score: 0.45
+    subject: src
+    signals: ["kerberos_tgs_request"]
+    conditions:
+      - field: enrichment.kerberos_types
+        op: contains_any
+        value: ["TGS", "TGS-REQ"]
+
+  # ----------------------------------------- T1112 Remote registry mutation
+  - id: LM-008
+    description: "Remote registry access via winreg DCE-RPC"
+    mitre_tags: ["T1112"]
+    score: 0.6
+    subject: src
+    signals: ["remote_registry_access"]
+    conditions:
+      - field: enrichment.dce_endpoints
+        op: contains
+        value: winreg
+
+  # ----------------------------------------------- T1059.001 Script drop SMB
+  - id: LM-009
+    description: "Script file (.ps1/.bat/.vbs) written to admin share"
+    mitre_tags: ["T1059.001", "T1021.002"]
+    score: 0.7
+    subject: src
+    signals: ["smb_script_drop"]
+    conditions:
+      - field: enrichment.admin_share
+        op: equals
+        value: true
+      - field: enrichment.smb_files_names
+        op: contains_any
+        value: [".ps1", ".bat", ".vbs", ".cmd", ".hta"]
+
+  # ------------------------------------------------- T1021.001 RDP attempted
+  - id: LM-010
+    description: "RDP session attempt (port 3389) between internal hosts"
+    mitre_tags: ["T1021.001"]
+    score: 0.4
+    subject: src
+    signals: ["rdp_internal"]
+    conditions:
+      - field: dst_port
+        op: equals
+        value: 3389
+
+  # ----------------------------------------------- T1021.006 WinRM lateral
+  - id: LM-011
+    description: "WinRM remoting attempt (5985/5986)"
+    mitre_tags: ["T1021.006"]
+    score: 0.5
+    subject: src
+    signals: ["winrm_lateral"]
+    conditions:
+      - field: dst_port
+        op: in
+        value: [5985, 5986]
+
+  # -------------------------------------- T1021.002 LSASS pipe (Mimikatz-ish)
+  - id: LM-012
+    description: "SMB named pipe used by lateral remote-code-exec tools"
+    mitre_tags: ["T1021.002"]
+    score: 0.7
+    subject: src
+    signals: ["suspicious_named_pipe"]
+    conditions:
+      - field: enrichment.dce_pipes
+        op: contains_any
+        value: ["lsass", "atsvc", "winreg", "samr"]

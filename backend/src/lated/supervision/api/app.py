@@ -49,6 +49,7 @@ from lated.supervision.realtime_graph import RealtimeGraphProcessor
 from lated.supervision.flows_repository import FlowsRepository
 from lated.supervision.graph_repository import GraphRepository
 from lated.supervision.hosts_repository import HostsRepository
+from lated.supervision.live_detection_pipeline import LiveDetectionPipeline
 from lated.supervision.paths_repository import PathsRepository
 from lated.supervision.zeek_live_runtime import ZeekLiveRuntime
 from lated.supervision.storage.event_store import EventStore
@@ -121,11 +122,53 @@ def create_app(
         publisher=app.state.ws_channels,
         host_registry=app.state.realtime_host_registry,
     )
+
+    # --- Live detection pipeline ---------------------------------------
+    # Constructed only when the source is Zeek; reuses the offline
+    # `build_components` to assemble detectors/fusion/correlation with the
+    # exact same wiring as the batch orchestrator.
+    app.state.live_detection_pipeline = None
+    if str(config.ingestion.source) == "zeek":
+        try:
+            from lated.pipelines.online.pipeline_runner import build_components
+            supervision_db = persistence.database_path if hasattr(persistence, "database_path") else (
+                app.state.backend_root / "data" / "supervision.sqlite3"
+            )
+            graph_store_path = app.state.backend_root / "data" / "graph" / "snapshots.sqlite3"
+            graph_store_path.parent.mkdir(parents=True, exist_ok=True)
+            components = build_components(
+                config,
+                supervision_db_path=str(supervision_db),
+                graph_store_path=str(graph_store_path),
+                host_registry=app.state.realtime_host_registry,
+            )
+            app.state.detection_components = components
+            app.state.live_detection_pipeline = LiveDetectionPipeline(
+                graph_builder=components.graph_builder,
+                recon_detector=components.recon_detector,
+                smb_detector=components.smb_detector,
+                rare_edge_detector=components.rare_edge_detector,
+                mitre_rules_detector=components.mitre_rules_detector,
+                lm_inference=components.lm_inference,
+                fusion=components.fusion,
+                correlation=components.correlation,
+                alert_engine=components.alert_engine,
+                correlation_store=components.correlation_store,
+                ws_channels=app.state.ws_channels,
+                window_seconds=int(config.graph.snapshot_window_seconds),
+            )
+        except Exception as exc:
+            # Live detection is best-effort. If wiring fails (missing model,
+            # missing baseline, etc.) the live graph still works.
+            app.state.live_detection_pipeline = None
+            app.state.live_detection_error = f"{type(exc).__name__}: {exc}"
+
     app.state.zeek_live_runtime = ZeekLiveRuntime(
         config=config,
         host_registry=app.state.realtime_host_registry,
         realtime_graph=app.state.realtime_graph,
         ws_channels=app.state.ws_channels,
+        detection_pipeline=app.state.live_detection_pipeline,
     )
 
     app.add_middleware(
@@ -150,13 +193,44 @@ def create_app(
     async def websocket_endpoint(websocket: WebSocket):
         await app.state.ws_server.endpoint(websocket)
 
+    # Periodic save of the evolving rare-edge baseline. Lives only as long
+    # as the app does; cancelled on shutdown.
+    app.state._baseline_save_task = None
+
     @app.on_event("startup")
     async def _startup_live_runtime() -> None:
         if str(config.ingestion.source) == "zeek" and str(config.ingestion.mode) in {"live", "replay_live"}:
             app.state.zeek_live_runtime.start()
+        # Schedule baseline auto-save every 60s so the memory persists.
+        components = getattr(app.state, "detection_components", None)
+        if components is not None and getattr(components, "rare_edge_detector", None) is not None:
+            import asyncio
+            async def _baseline_saver():
+                detector = components.rare_edge_detector
+                while True:
+                    try:
+                        await asyncio.sleep(60)
+                    except asyncio.CancelledError:
+                        break
+                    if hasattr(detector, "is_dirty") and detector.is_dirty():
+                        try:
+                            detector.save()
+                        except Exception:
+                            pass
+            app.state._baseline_save_task = asyncio.create_task(_baseline_saver())
 
     @app.on_event("shutdown")
     async def _shutdown_live_runtime() -> None:
         app.state.zeek_live_runtime.stop()
+        task = getattr(app.state, "_baseline_save_task", None)
+        if task is not None:
+            task.cancel()
+        # Final flush of the baseline so we don't lose the in-memory updates.
+        components = getattr(app.state, "detection_components", None)
+        if components is not None and getattr(components, "rare_edge_detector", None) is not None:
+            try:
+                components.rare_edge_detector.save()
+            except Exception:
+                pass
 
     return app

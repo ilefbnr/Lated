@@ -93,6 +93,7 @@ class DetectorName(str, Enum):
     RARE_EDGE = "rare_edge_detector"
     PRIVILEGED_ACCESS = "privileged_asset_access_detector"
     PIVOT = "pivot_detector"
+    MITRE_RULES = "mitre_rules"
 
 
 class WSChannel(str, Enum):
@@ -144,6 +145,10 @@ class CanonicalFlow(BaseSchemaModel):
     packet_count: int = Field(ge=0)
     byte_count: int = Field(ge=0)
     source_sensor: str
+    # Protocol-level enrichment derived from sibling Zeek logs (smb_files,
+    # smb_mapping, dce_rpc, ntlm, kerberos). Empty when the live enricher
+    # is disabled or the connection has no companion records.
+    enrichment: dict[str, Any] = Field(default_factory=dict)
     schema_version: str = SCHEMA_VERSION
 
 

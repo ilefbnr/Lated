@@ -35,6 +35,35 @@ class ModelArtifact:
     metadata: dict
     model_version: str
     sha256: str
+    node_mapping_path: Path | None = None
+
+
+def load_unsigned_artifact(
+    model_path: str | Path,
+    node_mapping_path: str | Path | None = None,
+    model_version: str = "dev-unsigned",
+) -> ModelArtifact:
+    """Dev-friendly loader: bypass signature/metadata sidecars.
+
+    Production code should keep using `ModelLoader.load()`. This helper exists
+    to plug a local .pt file into the runtime when you just want to see the
+    model produce real scores (e.g. against the bundled PicoDomain dataset).
+    """
+    model = Path(model_path)
+    if not model.exists():
+        raise ModelLoadError(f"Model artifact not found: {model}")
+    payload = model.read_bytes()
+    digest = hashlib.sha256(payload).hexdigest()
+    mapping = Path(node_mapping_path) if node_mapping_path is not None else None
+    return ModelArtifact(
+        path=model,
+        signature_path=Path(str(model) + ".sig"),
+        metadata_path=model.with_suffix(".json"),
+        metadata={"schema_version": "dev", "feature_set": []},
+        model_version=model_version,
+        sha256=digest,
+        node_mapping_path=mapping,
+    )
 
 
 class ModelLoader:

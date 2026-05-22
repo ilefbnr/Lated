@@ -26,8 +26,9 @@ from lated.detection.fusion.suspicion_fusion import SuspicionFusion
 from lated.detection.protocols.rare_edge_detector import RareEdgeDetector
 from lated.detection.protocols.smb_detector import SMBDetector
 from lated.detection.recon.recon_detector import ReconDetector
+from lated.detection.rules import MITRERulesDetector, load_rules
 from lated.detection.tgnn.tgnn_inference import TGNNInference
-from lated.detection.tgnn.model_loader import ModelLoader
+from lated.detection.tgnn.model_loader import ModelLoader, load_unsigned_artifact
 from lated.discovery.host_registry import HostRegistry
 from lated.graph.graph_builder import GraphBuilder
 from lated.graph.graph_store import GraphStore
@@ -51,6 +52,7 @@ class PipelineComponents:
     recon_detector: ReconDetector
     smb_detector: SMBDetector
     rare_edge_detector: RareEdgeDetector
+    mitre_rules_detector: MITRERulesDetector | None
     lm_inference: TGNNInference
     fusion: SuspicionFusion
     correlation: CorrelationEngine
@@ -103,17 +105,63 @@ def build_components(
         window_seconds=config.graph.snapshot_window_seconds,
     )
 
+    mitre_rules_detector: MITRERulesDetector | None = None
+    rules_path = backend_root / "config" / "detection_rules.yaml"
+    if rules_path.is_file():
+        try:
+            mitre_rules_detector = MITRERulesDetector(
+                rules=load_rules(rules_path),
+                window_seconds=config.graph.snapshot_window_seconds,
+                host_registry=registry,
+            )
+        except Exception:
+            mitre_rules_detector = None
+
     artifact = None
     tgnn_cfg = getattr(getattr(config, "detection", None), "tgnn", None)
     model_path_value = getattr(tgnn_cfg, "model_path", "") if tgnn_cfg is not None else ""
-    model_path = Path(model_path_value or "")
+    node_mapping_value = getattr(tgnn_cfg, "node_mapping_path", "") if tgnn_cfg is not None else ""
+
+    # LATED_TGN_MODEL env var override — takes priority over settings.yaml.
+    # Accepts an absolute path or a name relative to backend/data/models/.
+    env_model = os.environ.get("LATED_TGN_MODEL", "").strip()
+    if env_model:
+        candidate = Path(env_model)
+        if not candidate.is_absolute():
+            candidate = backend_root / "data" / "models" / candidate
+        model_path_value = str(candidate)
+        # Reset node_mapping_value so the runtime auto-resolves by checkpoint name.
+        node_mapping_value = ""
+
+    model_path = (backend_root / model_path_value).resolve() if model_path_value and not Path(model_path_value).is_absolute() else Path(model_path_value or "")
+    node_mapping = None
+    if node_mapping_value:
+        candidate = Path(node_mapping_value)
+        if not candidate.is_absolute():
+            candidate = backend_root / node_mapping_value
+        node_mapping = candidate.resolve() if candidate.exists() else None
+
     secret_key = os.environ.get("LATED_MODEL_SECRET_KEY") or os.environ.get("LATED_SECRET_KEY")
-    if model_path_value and model_path.exists() and secret_key:
-        try:
-            artifact = ModelLoader(secret_key=secret_key).load(model_path)
-        except Exception:
-            artifact = None
-    lm_inference = TGNNInference(artifact=artifact)
+    dev_mode = os.environ.get("LATED_DEV_MODE", "").lower() in {"1", "true", "yes"}
+
+    if model_path_value and model_path.exists():
+        if secret_key and not dev_mode:
+            try:
+                artifact = ModelLoader(secret_key=secret_key).load(model_path)
+            except Exception:
+                artifact = None
+        if artifact is None and dev_mode:
+            try:
+                artifact = load_unsigned_artifact(
+                    model_path,
+                    node_mapping_path=node_mapping,
+                )
+            except Exception:
+                artifact = None
+    lm_inference = TGNNInference(
+        artifact=artifact,
+        window_seconds=config.graph.snapshot_window_seconds,
+    )
 
     risk_scorer = RiskScorer(decay_per_hour=config.thresholds.fusion.host_risk_decay_per_hour)
     fusion = SuspicionFusion(config.detection.fusion, risk_scorer)
@@ -155,6 +203,7 @@ def build_components(
         alert_engine=alert_engine,
         correlation_store=correlation_store,
         publisher=publisher,
+        mitre_rules_detector=mitre_rules_detector,
     )
 
     return PipelineComponents(
@@ -165,6 +214,7 @@ def build_components(
         recon_detector=recon_detector,
         smb_detector=smb_detector,
         rare_edge_detector=rare_edge_detector,
+        mitre_rules_detector=mitre_rules_detector,
         lm_inference=lm_inference,
         fusion=fusion,
         correlation=correlation,

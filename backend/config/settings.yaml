@@ -49,6 +49,15 @@ ingestion:
   # replay_live only: N archived-time seconds per 1 wall-clock second.
   # ×1 = real-time, ×60 = one minute of wall-clock plays one hour of logs.
   replay_speed: 60
+  # Zeek log types tailed/replayed in live + replay_live modes. The
+  # LiveZeekEnricher joins enrichment logs onto conn records by uid.
+  zeek_log_types:
+    - conn
+    - smb_files
+    - smb_mapping
+    - dce_rpc
+    - ntlm
+    - kerberos
 
 # --- Temporal graph ----------------------------------------------------------
 graph:
@@ -67,7 +76,23 @@ graph:
 # --- Detection ---------------------------------------------------------------
 detection:
   tgnn:
-    model_path: /data/models/tgnn_lm.pt
+    # Paths are resolved relative to backend/. Set LATED_DEV_MODE=1 to load
+    # without the signature/metadata sidecars.
+    #
+    # Override at runtime with LATED_TGN_MODEL=<name-or-path>. The runtime
+    # auto-resolves the matching node-mapping by checkpoint filename:
+    #   tgn_supervised_m5_n015.pt → data/datasets/train_m5_n015.pt
+    #   tgn_backbone_m2_n015.pt   → data/datasets/train_m2_n015.pt
+    #
+    # Run `python -c "import sys; sys.path.insert(0,'src'); from lated.tools.compare_tgn_models import *; print_table(scan_models(__import__('pathlib').Path('data/models')))"`
+    # to see a ranked comparison of every checkpoint.
+    #
+    # Family choices (best → worst by PicoDomain AUC-ROC):
+    #   supervised  end-to-end LM head, sigmoid = LM probability  ← recommended
+    #   lm_head     LM head only (needs companion backbone)
+    #   backbone    SSL link-prediction, 1-sigmoid = anomaly
+    model_path: data/models/tgn_supervised_m5_n015.pt
+    node_mapping_path: ""   # leave empty for auto-resolution by filename
     device: cpu             # cpu | cuda
     batch_size: 64
   recon:

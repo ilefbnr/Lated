@@ -583,11 +583,264 @@
       ]
     }
   ],
+  "subnets": {
+    "10.0.0.0/24": [
+      "host-2298588908a2",
+      "host-55333d44f2e1",
+      "host-653e5864a1c1",
+      "host-85e3b8bb7ceb",
+      "host-90649b594f60",
+      "host-9b84f0297554",
+      "host-c239049f8215",
+      "host-d0126d2dec56",
+      "host-d12439277f6e"
+    ],
+    "10.0.1.0/24": [
+      "host-5cfed074667a",
+      "host-61ea7d04c39c",
+      "host-c10d93d96373",
+      "host-d08de5237be4",
+      "host-fb022fdf765e"
+    ],
+    "10.0.2.0/24": [
+      "host-abbc0737be6c",
+      "host-acefe74605b8"
+    ],
+    "10.99.99.0/24": [
+      "host-0f0e988ed03b",
+      "host-0f41bf956a77",
+      "host-1fb7a1a1f8ec",
+      "host-2ad4bc11bf31",
+      "host-6040e4f0b011",
+      "host-94d6cffa1ae3",
+      "host-b93b580b692f",
+      "host-caf8f461110f"
+    ],
+    "13.107.3.0/24": [
+      "host-89ee54819e3e"
+    ],
+    "13.68.93.0/24": [
+      "host-e452ea838f7c"
+    ],
+    "13.74.179.0/24": [
+      "host-733815096403"
+    ],
+    "192.112.36.0/24": [
+      "host-d8ed68e76779"
+    ],
+    "192.203.230.0/24": [
+      "host-cd6ea67afd21"
+    ],
+    "20.36.218.0/24": [
+      "host-2de5beeceaf1"
+    ],
+    "20.44.86.0/24": [
+      "host-c4620f74b130"
+    ],
+    "205.185.216.0/24": [
+      "host-88313adf95fb",
+      "host-f7ba1201d505"
+    ],
+    "224.0.0.0/24": [
+      "host-cca32980c8e6"
+    ],
+    "23.50.230.0/24": [
+      "host-87b66a56ded9"
+    ],
+    "51.143.111.0/24": [
+      "host-369940bc38e0"
+    ],
+    "52.114.128.0/24": [
+      "host-42d211c2b487"
+    ],
+    "52.114.158.0/24": [
+      "host-7c65cb39892d"
+    ],
+    "52.114.6.0/24": [
+      "host-6d556fff61e1",
+      "host-72657969ba90"
+    ],
+    "52.114.75.0/24": [
+      "host-50d3db16d3df"
+    ],
+    "52.114.76.0/24": [
+      "host-58c712fc2ffc"
+    ],
+    "52.114.88.0/24": [
+      "host-41a66448c260"
+    ],
+    "52.158.208.0/24": [
+      "host-cbacecb618bb"
+    ],
+    "52.2.227.0/24": [
+      "host-a8306955f1bf"
+    ],
+    "52.44.232.0/24": [
+      "host-5e40893f8c28"
+    ],
+    "65.52.108.0/24": [
+      "host-18e5cf5f7848"
+    ],
+    "72.21.81.0/24": [
+      "host-05eb30864153"
+    ],
+    "8.249.221.0/24": [
+      "host-c8d33bd2b0b2"
+    ],
+    "8.249.235.0/24": [
+      "host-7bb3269431af"
+    ],
+    "8.249.241.0/24": [
+      "host-d67f8d566a20"
+    ],
+    "8.253.139.0/24": [
+      "host-1e298d0db658"
+    ],
+    "8.253.45.0/24": [
+      "host-a3c3620af906"
+    ]
+  },
+  "gateways": [
+    "host-0f0e988ed03b",
+    "host-0f41bf956a77",
+    "host-2ad4bc11bf31",
+    "host-94d6cffa1ae3",
+    "host-caf8f461110f"
+  ],
+  "services": [
+    "host-05eb30864153",
+    "host-0f41bf956a77",
+    "host-18e5cf5f7848",
+    "host-2de5beeceaf1",
+    "host-369940bc38e0",
+    "host-41a66448c260",
+    "host-42d211c2b487",
+    "host-50d3db16d3df",
+    "host-58c712fc2ffc",
+    "host-5e40893f8c28",
+    "host-6040e4f0b011",
+    "host-6d556fff61e1",
+    "host-72657969ba90",
+    "host-733815096403",
+    "host-7c65cb39892d",
+    "host-87b66a56ded9",
+    "host-88313adf95fb",
+    "host-89ee54819e3e",
+    "host-94d6cffa1ae3",
+    "host-a8306955f1bf",
+    "host-c4620f74b130",
+    "host-cbacecb618bb",
+    "host-cd6ea67afd21",
+    "host-d8ed68e76779",
+    "host-e452ea838f7c",
+    "host-f7ba1201d505"
+  ],
+  "last_updated": "2026-05-22T11:39:08.878671+00:00",
   "edges": [
+    {
+      "src": "host-0133d42c9288",
+      "dst": "host-9809bd700cd1",
+      "communication_count": 8,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        63981,
+        63985,
+        63989,
+        63995
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-0133d42c9288",
+      "dst": "host-dc7f17d52bed",
+      "communication_count": 19,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        63978,
+        63980,
+        63982,
+        63984,
+        63986,
+        63988,
+        63990,
+        63991,
+        63994
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-0133d42c9288",
+      "dst": "host-de7a0608d023",
+      "communication_count": 2,
+      "first_seen": "2019-07-19T00:02:00+00:00",
+      "last_seen": "2019-07-19T00:02:30+00:00",
+      "src_ports": [
+        63993
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-0133d42c9288",
+      "dst": "host-deeaa03e060e",
+      "communication_count": 5,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        137,
+        52211,
+        54809,
+        62830
+      ],
+      "dst_ports": [
+        53,
+        137
+      ],
+      "protocols": [
+        "udp"
+      ]
+    },
+    {
+      "src": "host-0133d42c9288",
+      "dst": "host-fb5095530a8a",
+      "communication_count": 10,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        63979,
+        63983,
+        63987,
+        63992
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-05eb30864153",
       "communication_count": 18,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58044,
         58081,
@@ -602,15 +855,14 @@
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-0f41bf956a77",
       "communication_count": 269,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         3,
         123,
@@ -768,19 +1020,14 @@
         445,
         49666
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS",
-        "Kerberos",
-        "RPC",
-        "LDAP",
-        "SMB"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-18e5cf5f7848",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58123,
         62028,
@@ -789,30 +1036,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-1e298d0db658",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58251
       ],
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-2de5beeceaf1",
       "communication_count": 8,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58149,
         58264,
@@ -822,15 +1067,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-369940bc38e0",
       "communication_count": 88,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58056,
         58059,
@@ -880,15 +1124,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-42d211c2b487",
       "communication_count": 18,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58050,
         58076,
@@ -903,15 +1146,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-50d3db16d3df",
       "communication_count": 10,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58220,
         58249,
@@ -922,15 +1164,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-5e40893f8c28",
       "communication_count": 167,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58032,
         58037,
@@ -1020,15 +1261,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-6040e4f0b011",
       "communication_count": 72,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49780,
         49785,
@@ -1106,15 +1346,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-733815096403",
       "communication_count": 162,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58075,
         58079,
@@ -1201,30 +1440,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-7bb3269431af",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58174
       ],
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-7c65cb39892d",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         62006,
         62021,
@@ -1233,15 +1470,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-87b66a56ded9",
       "communication_count": 24,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58078,
         58083,
@@ -1259,15 +1495,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-88313adf95fb",
       "communication_count": 4,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         61993,
         62033
@@ -1275,45 +1510,42 @@
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-89ee54819e3e",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58180
       ],
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-a3c3620af906",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58214
       ],
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-a8306955f1bf",
       "communication_count": 167,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58035,
         58039,
@@ -1403,28 +1635,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-b93b580b692f",
       "communication_count": 5,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         138
       ],
       "dst_ports": [
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-c4620f74b130",
       "communication_count": 28,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58034,
         58086,
@@ -1444,30 +1676,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-c8d33bd2b0b2",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58175
       ],
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-cbacecb618bb",
       "communication_count": 76,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58073,
         58077,
@@ -1511,30 +1741,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-d67f8d566a20",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58213
       ],
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-e452ea838f7c",
       "communication_count": 60,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58033,
         58036,
@@ -1570,15 +1798,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f0e988ed03b",
       "dst": "host-f7ba1201d505",
       "communication_count": 4,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         61992,
         62034
@@ -1586,15 +1813,14 @@
       "dst_ports": [
         80
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTP"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-2de5beeceaf1",
       "communication_count": 16,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65167,
         65169,
@@ -1608,15 +1834,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-58c712fc2ffc",
       "communication_count": 10,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65148,
         65159,
@@ -1627,15 +1852,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-6040e4f0b011",
       "communication_count": 39,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         50283,
         50820,
@@ -1679,15 +1903,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-6d556fff61e1",
       "communication_count": 16,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65207,
         65230,
@@ -1701,15 +1924,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-72657969ba90",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65336,
         65352,
@@ -1718,15 +1940,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-89ee54819e3e",
       "communication_count": 4,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65245,
         65248
@@ -1734,15 +1955,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-b93b580b692f",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         138
@@ -1751,26 +1971,28 @@
         137,
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-cca32980c8e6",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         65535
       ],
       "dst_ports": [
         5355
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-cd6ea67afd21",
       "communication_count": 198,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49154,
         49167,
@@ -1969,15 +2191,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-0f41bf956a77",
       "dst": "host-d8ed68e76779",
       "communication_count": 198,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49154,
         49167,
@@ -2176,15 +2397,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-1fb7a1a1f8ec",
       "dst": "host-0f41bf956a77",
       "communication_count": 33,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         8,
         123,
@@ -2221,19 +2441,14 @@
         49666,
         49672
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS",
-        "Kerberos",
-        "RPC",
-        "LDAP",
-        "SMB"
-      ]
+      "protocols": []
     },
     {
       "src": "host-1fb7a1a1f8ec",
       "dst": "host-6040e4f0b011",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         68,
         50688,
@@ -2246,15 +2461,14 @@
         53,
         67
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-1fb7a1a1f8ec",
       "dst": "host-94d6cffa1ae3",
       "communication_count": 15,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         1385,
@@ -2272,15 +2486,14 @@
         137,
         139
       ],
-      "protocols": [],
-      "service_labels": [
-        "NetBIOS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-1fb7a1a1f8ec",
       "dst": "host-b93b580b692f",
       "communication_count": 13,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         138
@@ -2289,13 +2502,14 @@
         137,
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-0f41bf956a77",
       "communication_count": 81,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         3,
         68,
@@ -2354,19 +2568,14 @@
         445,
         49666
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS",
-        "Kerberos",
-        "RPC",
-        "LDAP",
-        "SMB"
-      ]
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-5e40893f8c28",
       "communication_count": 166,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49365,
         49369,
@@ -2455,15 +2664,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-6040e4f0b011",
       "communication_count": 7,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         53838,
         54839,
@@ -2476,15 +2684,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-94d6cffa1ae3",
       "communication_count": 15,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         49367,
@@ -2502,15 +2709,14 @@
         137,
         139
       ],
-      "protocols": [],
-      "service_labels": [
-        "NetBIOS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-a8306955f1bf",
       "communication_count": 168,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49364,
         49366,
@@ -2600,15 +2806,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-b93b580b692f",
       "communication_count": 11,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         138
@@ -2617,65 +2822,108 @@
         137,
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-2ad4bc11bf31",
       "dst": "host-cca32980c8e6",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         58288
       ],
       "dst_ports": [
         5355
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-42ff5f85b8d9",
       "dst": "host-1b673779a2e1",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         143
       ],
       "dst_ports": [
         0
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-42ff5f85b8d9",
       "dst": "host-637f2b6c8713",
       "communication_count": 9,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         546
       ],
       "dst_ports": [
         547
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-42ff5f85b8d9",
       "dst": "host-8d9b3907dac7",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         56096
       ],
       "dst_ports": [
         5355
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
+    },
+    {
+      "src": "host-5df4205cc253",
+      "dst": "host-9809bd700cd1",
+      "communication_count": 10,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        56427,
+        56430,
+        56435,
+        56437
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-5df4205cc253",
+      "dst": "host-fb5095530a8a",
+      "communication_count": 10,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        56429,
+        56432,
+        56436,
+        56438
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
     },
     {
       "src": "host-6040e4f0b011",
       "dst": "host-0f41bf956a77",
       "communication_count": 44,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         6950,
         7343,
@@ -2725,54 +2973,56 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-81e465964523",
       "dst": "host-1b673779a2e1",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         143
       ],
       "dst_ports": [
         0
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-81e465964523",
       "dst": "host-637f2b6c8713",
       "communication_count": 9,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         546
       ],
       "dst_ports": [
         547
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-81e465964523",
       "dst": "host-8d9b3907dac7",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         56948
       ],
       "dst_ports": [
         5355
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-0f41bf956a77",
       "communication_count": 37,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         123,
         137,
@@ -2813,18 +3063,14 @@
         389,
         445
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS",
-        "NetBIOS",
-        "LDAP",
-        "SMB"
-      ]
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-5e40893f8c28",
       "communication_count": 167,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         51416,
         51418,
@@ -2914,15 +3160,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-6040e4f0b011",
       "communication_count": 13,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         68,
         49953,
@@ -2942,15 +3187,14 @@
         53,
         67
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-a8306955f1bf",
       "communication_count": 168,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         51415,
         51417,
@@ -3040,15 +3284,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-b93b580b692f",
       "communication_count": 13,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         137,
         138
@@ -3057,26 +3300,281 @@
         137,
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-94d6cffa1ae3",
       "dst": "host-cca32980c8e6",
       "communication_count": 1,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         60620
       ],
       "dst_ports": [
         5355
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
+    },
+    {
+      "src": "host-965eceaee96b",
+      "dst": "host-9809bd700cd1",
+      "communication_count": 10,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        52158,
+        52160,
+        52163,
+        52166
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-965eceaee96b",
+      "dst": "host-deeaa03e060e",
+      "communication_count": 3,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-18T23:59:30+00:00",
+      "src_ports": [
+        137,
+        52156
+      ],
+      "dst_ports": [
+        137,
+        445
+      ],
+      "protocols": [
+        "tcp",
+        "udp"
+      ]
+    },
+    {
+      "src": "host-965eceaee96b",
+      "dst": "host-fb5095530a8a",
+      "communication_count": 9,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        52159,
+        52161,
+        52164,
+        52167
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-2b82b678296d",
+      "communication_count": 11,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        49420,
+        50619,
+        52144,
+        52390,
+        56597,
+        57567,
+        62987,
+        65506
+      ],
+      "dst_ports": [
+        53
+      ],
+      "protocols": [
+        "udp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-9809bd700cd1",
+      "communication_count": 10,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        58143,
+        58154,
+        58163,
+        58171
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-abf12f15f7a9",
+      "communication_count": 2,
+      "first_seen": "2019-07-19T00:00:30+00:00",
+      "last_seen": "2019-07-19T00:00:30+00:00",
+      "src_ports": [
+        58152
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-d192297eab48",
+      "communication_count": 20,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        58144,
+        58149,
+        58153,
+        58157,
+        58162,
+        58166,
+        58170,
+        58174
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-dc7f17d52bed",
+      "communication_count": 19,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        58142,
+        58147,
+        58151,
+        58156,
+        58160,
+        58165,
+        58169,
+        58173,
+        58177
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-de7a0608d023",
+      "communication_count": 4,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        58146
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-deeaa03e060e",
+      "communication_count": 30,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        49420,
+        50619,
+        50688,
+        52144,
+        52390,
+        53847,
+        54178,
+        55600,
+        56597,
+        57567,
+        58161,
+        61983,
+        62987,
+        63193,
+        65506
+      ],
+      "dst_ports": [
+        53,
+        445
+      ],
+      "protocols": [
+        "tcp",
+        "udp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-f43a9836e648",
+      "communication_count": 20,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:30+00:00",
+      "src_ports": [
+        58141,
+        58145,
+        58150,
+        58155,
+        58159,
+        58164,
+        58168,
+        58172,
+        58176
+      ],
+      "dst_ports": [
+        80
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-a7b67678de79",
+      "dst": "host-fb5095530a8a",
+      "communication_count": 10,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        58148,
+        58158,
+        58167,
+        58175
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-0f41bf956a77",
       "communication_count": 209,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         3,
         123,
@@ -3207,19 +3705,14 @@
         445,
         49666
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS",
-        "Kerberos",
-        "RPC",
-        "LDAP",
-        "SMB"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-18e5cf5f7848",
       "communication_count": 14,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55525,
         55579,
@@ -3232,15 +3725,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-2de5beeceaf1",
       "communication_count": 8,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55543,
         55665,
@@ -3250,15 +3742,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-369940bc38e0",
       "communication_count": 30,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55581,
         55585,
@@ -3279,15 +3770,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-41a66448c260",
       "communication_count": 16,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55475,
         55490,
@@ -3301,30 +3791,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-50d3db16d3df",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         61967
       ],
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-58c712fc2ffc",
       "communication_count": 10,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55595,
         55630,
@@ -3335,15 +3823,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-5e40893f8c28",
       "communication_count": 166,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55460,
         55464,
@@ -3432,15 +3919,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-6040e4f0b011",
       "communication_count": 43,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         49276,
         49729,
@@ -3489,15 +3975,14 @@
       "dst_ports": [
         53
       ],
-      "protocols": [],
-      "service_labels": [
-        "DNS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-733815096403",
       "communication_count": 162,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55491,
         55494,
@@ -3584,15 +4069,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-87b66a56ded9",
       "communication_count": 24,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55493,
         55496,
@@ -3610,30 +4094,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-89ee54819e3e",
       "communication_count": 2,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55582
       ],
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-a8306955f1bf",
       "communication_count": 168,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55458,
         55462,
@@ -3723,28 +4205,28 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-b93b580b692f",
       "communication_count": 5,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         138
       ],
       "dst_ports": [
         138
       ],
-      "protocols": [],
-      "service_labels": []
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-c4620f74b130",
       "communication_count": 6,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         61978,
         61981,
@@ -3753,15 +4235,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-cbacecb618bb",
       "communication_count": 12,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55609,
         55612,
@@ -3773,15 +4254,14 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
-      ]
+      "protocols": []
     },
     {
       "src": "host-caf8f461110f",
       "dst": "host-e452ea838f7c",
       "communication_count": 180,
+      "first_seen": null,
+      "last_seen": null,
       "src_ports": [
         55457,
         55459,
@@ -3877,162 +4357,122 @@
       "dst_ports": [
         443
       ],
-      "protocols": [],
-      "service_labels": [
-        "HTTPS"
+      "protocols": []
+    },
+    {
+      "src": "host-deeaa03e060e",
+      "dst": "host-288e7dd944af",
+      "communication_count": 23,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        49253,
+        49338,
+        49593,
+        49639,
+        49666,
+        49837,
+        64168,
+        64230,
+        64354,
+        64399,
+        64968,
+        65031,
+        65065,
+        65084,
+        65086,
+        65284,
+        65406
+      ],
+      "dst_ports": [
+        53
+      ],
+      "protocols": [
+        "udp"
+      ]
+    },
+    {
+      "src": "host-deeaa03e060e",
+      "dst": "host-59f12ce38db9",
+      "communication_count": 21,
+      "first_seen": "2019-07-18T23:59:30+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        49253,
+        49338,
+        49567,
+        49593,
+        49639,
+        49666,
+        49837,
+        64168,
+        64230,
+        64354,
+        64399,
+        64968,
+        65031,
+        65086,
+        65406,
+        65459
+      ],
+      "dst_ports": [
+        53
+      ],
+      "protocols": [
+        "udp"
+      ]
+    },
+    {
+      "src": "host-deeaa03e060e",
+      "dst": "host-f20dbbb640aa",
+      "communication_count": 2,
+      "first_seen": "2019-07-19T00:00:00+00:00",
+      "last_seen": "2019-07-19T00:00:00+00:00",
+      "src_ports": [
+        52867
+      ],
+      "dst_ports": [
+        443
+      ],
+      "protocols": [
+        "tcp"
+      ]
+    },
+    {
+      "src": "host-f2b103ff2537",
+      "dst": "host-5df4205cc253",
+      "communication_count": 3,
+      "first_seen": "2019-07-19T00:02:00+00:00",
+      "last_seen": "2019-07-19T00:02:00+00:00",
+      "src_ports": [
+        137,
+        2039,
+        2040
+      ],
+      "dst_ports": [
+        137,
+        139
+      ],
+      "protocols": [
+        "tcp",
+        "udp"
+      ]
+    },
+    {
+      "src": "host-f2b103ff2537",
+      "dst": "host-b997ea142961",
+      "communication_count": 1,
+      "first_seen": "2019-07-19T00:02:00+00:00",
+      "last_seen": "2019-07-19T00:02:00+00:00",
+      "src_ports": [
+        137
+      ],
+      "dst_ports": [
+        137
+      ],
+      "protocols": [
+        "udp"
       ]
     }
-  ],
-  "subnets": {
-    "10.0.0.0/24": [
-      "host-2298588908a2",
-      "host-55333d44f2e1",
-      "host-653e5864a1c1",
-      "host-85e3b8bb7ceb",
-      "host-90649b594f60",
-      "host-9b84f0297554",
-      "host-c239049f8215",
-      "host-d0126d2dec56",
-      "host-d12439277f6e"
-    ],
-    "10.0.1.0/24": [
-      "host-5cfed074667a",
-      "host-61ea7d04c39c",
-      "host-c10d93d96373",
-      "host-d08de5237be4",
-      "host-fb022fdf765e"
-    ],
-    "10.0.2.0/24": [
-      "host-abbc0737be6c",
-      "host-acefe74605b8"
-    ],
-    "10.99.99.0/24": [
-      "host-0f0e988ed03b",
-      "host-0f41bf956a77",
-      "host-1fb7a1a1f8ec",
-      "host-2ad4bc11bf31",
-      "host-6040e4f0b011",
-      "host-94d6cffa1ae3",
-      "host-b93b580b692f",
-      "host-caf8f461110f"
-    ],
-    "13.107.3.0/24": [
-      "host-89ee54819e3e"
-    ],
-    "13.68.93.0/24": [
-      "host-e452ea838f7c"
-    ],
-    "13.74.179.0/24": [
-      "host-733815096403"
-    ],
-    "192.112.36.0/24": [
-      "host-d8ed68e76779"
-    ],
-    "192.203.230.0/24": [
-      "host-cd6ea67afd21"
-    ],
-    "20.36.218.0/24": [
-      "host-2de5beeceaf1"
-    ],
-    "20.44.86.0/24": [
-      "host-c4620f74b130"
-    ],
-    "205.185.216.0/24": [
-      "host-88313adf95fb",
-      "host-f7ba1201d505"
-    ],
-    "224.0.0.0/24": [
-      "host-cca32980c8e6"
-    ],
-    "23.50.230.0/24": [
-      "host-87b66a56ded9"
-    ],
-    "51.143.111.0/24": [
-      "host-369940bc38e0"
-    ],
-    "52.114.128.0/24": [
-      "host-42d211c2b487"
-    ],
-    "52.114.158.0/24": [
-      "host-7c65cb39892d"
-    ],
-    "52.114.6.0/24": [
-      "host-6d556fff61e1",
-      "host-72657969ba90"
-    ],
-    "52.114.75.0/24": [
-      "host-50d3db16d3df"
-    ],
-    "52.114.76.0/24": [
-      "host-58c712fc2ffc"
-    ],
-    "52.114.88.0/24": [
-      "host-41a66448c260"
-    ],
-    "52.158.208.0/24": [
-      "host-cbacecb618bb"
-    ],
-    "52.2.227.0/24": [
-      "host-a8306955f1bf"
-    ],
-    "52.44.232.0/24": [
-      "host-5e40893f8c28"
-    ],
-    "65.52.108.0/24": [
-      "host-18e5cf5f7848"
-    ],
-    "72.21.81.0/24": [
-      "host-05eb30864153"
-    ],
-    "8.249.221.0/24": [
-      "host-c8d33bd2b0b2"
-    ],
-    "8.249.235.0/24": [
-      "host-7bb3269431af"
-    ],
-    "8.249.241.0/24": [
-      "host-d67f8d566a20"
-    ],
-    "8.253.139.0/24": [
-      "host-1e298d0db658"
-    ],
-    "8.253.45.0/24": [
-      "host-a3c3620af906"
-    ]
-  },
-  "gateways": [
-    "host-0f0e988ed03b",
-    "host-0f41bf956a77",
-    "host-2ad4bc11bf31",
-    "host-94d6cffa1ae3",
-    "host-caf8f461110f"
-  ],
-  "services": [
-    "host-05eb30864153",
-    "host-0f41bf956a77",
-    "host-18e5cf5f7848",
-    "host-2de5beeceaf1",
-    "host-369940bc38e0",
-    "host-41a66448c260",
-    "host-42d211c2b487",
-    "host-50d3db16d3df",
-    "host-58c712fc2ffc",
-    "host-5e40893f8c28",
-    "host-6040e4f0b011",
-    "host-6d556fff61e1",
-    "host-72657969ba90",
-    "host-733815096403",
-    "host-7c65cb39892d",
-    "host-87b66a56ded9",
-    "host-88313adf95fb",
-    "host-89ee54819e3e",
-    "host-94d6cffa1ae3",
-    "host-a8306955f1bf",
-    "host-c4620f74b130",
-    "host-cbacecb618bb",
-    "host-cd6ea67afd21",
-    "host-d8ed68e76779",
-    "host-e452ea838f7c",
-    "host-f7ba1201d505"
   ]
 }
