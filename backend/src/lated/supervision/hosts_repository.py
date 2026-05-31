@@ -25,6 +25,60 @@ class HostsRepository:
             rows = connection.execute(query, params).fetchall()
         return [self._row_to_host(row) for row in rows]
 
+    def upsert(self, host: Host) -> None:
+        """Persist a live host (seen on the wire / in the HostRegistry) into the
+        hosts table so the REST /hosts view reflects real traffic, not seed.
+
+        Preserves an existing row's risk/alert columns on update; only refreshes
+        identity + liveness fields. Called from ZeekLiveRuntime.
+        """
+        with self.session_factory() as connection:
+            existing = connection.execute(
+                "SELECT host_id FROM hosts WHERE host_id = ?", (host.host_id,)
+            ).fetchone()
+            if existing is None:
+                connection.execute(
+                    """
+                    INSERT INTO hosts (
+                        host_id, ip_addresses, hostname, subnet, first_seen, last_seen,
+                        os_guess, metadata, current_risk, last_alert_at, active_alerts,
+                        schema_version
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        host.host_id,
+                        json.dumps(list(host.ip_addresses)),
+                        host.hostname,
+                        host.subnet,
+                        host.first_seen.isoformat(),
+                        host.last_seen.isoformat(),
+                        host.os_guess,
+                        json.dumps(host.metadata),
+                        0.0,
+                        None,
+                        0,
+                        host.schema_version,
+                    ),
+                )
+            else:
+                connection.execute(
+                    """
+                    UPDATE hosts
+                    SET ip_addresses = ?, hostname = ?, subnet = ?, last_seen = ?,
+                        os_guess = ?, metadata = ?
+                    WHERE host_id = ?
+                    """,
+                    (
+                        json.dumps(list(host.ip_addresses)),
+                        host.hostname,
+                        host.subnet,
+                        host.last_seen.isoformat(),
+                        host.os_guess,
+                        json.dumps(host.metadata),
+                        host.host_id,
+                    ),
+                )
+
     def get(self, host_id: str) -> Host:
         with self.session_factory() as connection:
             row = connection.execute("SELECT * FROM hosts WHERE host_id = ?", (host_id,)).fetchone()

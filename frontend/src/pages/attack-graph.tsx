@@ -36,6 +36,7 @@ import {
 import { useGraphStore } from '@/stores/graphStore';
 import type { GraphPayload } from '@/types/graph';
 import { pathsService } from '@/services/pathsService';
+import { baselineService, type BaselineStatus } from '@/services/baselineService';
 
 const AttackGraphCanvas = dynamic(
   () => import('@/components/graph/AttackGraphCanvas').then((mod) => mod.AttackGraphCanvas),
@@ -49,6 +50,23 @@ export default function AttackGraphPage() {
 
   const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
   const [pathSubgraph, setPathSubgraph] = useState<GraphPayload | null>(null);
+  const [baseline, setBaseline] = useState<BaselineStatus | null>(null);
+  const [baselineBusy, setBaselineBusy] = useState(false);
+
+  useEffect(() => {
+    baselineService.status().then(setBaseline).catch(() => setBaseline(null));
+  }, []);
+
+  const switchBaseline = async (mode: 'learning' | 'frozen') => {
+    setBaselineBusy(true);
+    try {
+      setBaseline(await baselineService.setMode(mode));
+    } catch {
+      /* role-gated or offline — leave current state */
+    } finally {
+      setBaselineBusy(false);
+    }
+  };
 
   useEffect(() => {
     const firstPath = paths[0];
@@ -105,6 +123,31 @@ export default function AttackGraphPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 rounded border border-outline/70 px-2 py-1">
+              <span className="text-[9px] uppercase tracking-[0.1em] text-[rgb(var(--lated-faint))]">baseline</span>
+              <span
+                className="font-mono text-[10px]"
+                style={{ color: baseline?.mode === 'frozen' ? '#34D399' : '#22D3EE' }}
+              >
+                {baseline ? `${baseline.mode} · ${baseline.edge_count}` : '...'}
+              </span>
+              <button
+                type="button"
+                onClick={() => void switchBaseline('learning')}
+                disabled={baselineBusy}
+                className="rounded px-1.5 py-0.5 text-[10px] text-cyan transition hover:bg-cyan/10 disabled:opacity-40"
+              >
+                learn
+              </button>
+              <button
+                type="button"
+                onClick={() => void switchBaseline('frozen')}
+                disabled={baselineBusy}
+                className="rounded px-1.5 py-0.5 text-[10px] text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+              >
+                freeze
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => {

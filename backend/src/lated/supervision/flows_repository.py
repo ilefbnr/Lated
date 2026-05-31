@@ -70,6 +70,39 @@ class FlowsRepository:
             raise HTTPException(status_code=404, detail="Flow not found")
         return self._row_to_dict(row)
 
+    def record(self, flow, suspicion: float = 0.0, related_alert_id: str | None = None) -> None:
+        """Persist a live CanonicalFlow into the suspicious_flows table so the
+        REST /flows view reflects real-time traffic (not just demo seed).
+
+        Called from ZeekLiveRuntime per flow. INSERT OR REPLACE keyed on
+        flow_id makes it idempotent if the same flow is seen twice.
+        """
+        ts = flow.ts.isoformat() if hasattr(flow.ts, "isoformat") else str(flow.ts)
+        with self.session_factory() as connection:
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO suspicious_flows (
+                    flow_id, ts, src_host, dst_host, src_port, dst_port,
+                    protocol, duration, packet_count, byte_count, suspicion,
+                    related_alert_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    flow.flow_id,
+                    ts,
+                    flow.src_host,
+                    flow.dst_host,
+                    int(flow.src_port),
+                    int(flow.dst_port),
+                    str(flow.protocol),
+                    float(flow.duration),
+                    int(flow.packet_count),
+                    int(flow.byte_count),
+                    float(suspicion),
+                    related_alert_id,
+                ),
+            )
+
     def by_host(self, host_id: str, since: str | None = None, until: str | None = None) -> list[dict]:
         clauses = ["(src_host = ? OR dst_host = ?)"]
         values: list[object] = [host_id, host_id]

@@ -2,13 +2,14 @@
 // pages/admin.tsx — admin control surface
 // =============================================================================
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { GlassCard } from '@/components/ui/GlassCard';
 import { NeonBadge } from '@/components/ui/NeonBadge';
 import { useUser } from '@/hooks/useUser';
 import { adminService } from '@/services/adminService';
+import { baselineService, type BaselineStatus } from '@/services/baselineService';
 
 type ActionState =
   | { kind: 'idle' }
@@ -22,11 +23,31 @@ export default function AdminPage() {
   const [thresholdsState, setThresholdsState] = useState<ActionState>({ kind: 'idle' });
   const [modelState, setModelState] = useState<ActionState>({ kind: 'idle' });
   const [modelInfo, setModelInfo] = useState<Record<string, unknown> | null>(null);
+  const [baseline, setBaseline] = useState<BaselineStatus | null>(null);
+  const [baselineState, setBaselineState] = useState<ActionState>({ kind: 'idle' });
+
+  useEffect(() => {
+    baselineService
+      .status()
+      .then(setBaseline)
+      .catch(() => setBaseline(null));
+  }, []);
 
   if (user !== null && !hasRole('admin')) {
     void router.replace('/overview');
     return null;
   }
+
+  const runBaseline = async (fn: () => Promise<BaselineStatus>, okMsg: string) => {
+    setBaselineState({ kind: 'pending' });
+    try {
+      const status = await fn();
+      setBaseline(status);
+      setBaselineState({ kind: 'ok', message: okMsg });
+    } catch (err) {
+      setBaselineState({ kind: 'err', message: err instanceof Error ? err.message : 'failed' });
+    }
+  };
 
   const reloadThresholds = async () => {
     setThresholdsState({ kind: 'pending' });
@@ -96,6 +117,56 @@ export default function AdminPage() {
               {JSON.stringify(modelInfo, null, 2)}
             </pre>
           )}
+        </GlassCard>
+      </section>
+
+      <section className="col-span-12">
+        <GlassCard className="h-full">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="lated-eyebrow">Rare-Edge Baseline</p>
+            <NeonBadge tone={baseline?.mode === 'frozen' ? 'violet' : 'cyan'}>
+              {baseline ? `${baseline.mode} · ${baseline.edge_count} edges` : 'loading...'}
+            </NeonBadge>
+          </div>
+          <p className="mb-4 text-[13px] text-[rgb(var(--lated-muted))]">
+            The rare-edge detector keeps a living baseline of <code className="rounded bg-elevated px-1.5 py-0.5 font-mono text-ink">host → host</code> relationships.
+            <strong className="text-ink"> Learning</strong> records observed traffic as normal and stays silent;
+            <strong className="text-ink"> Freeze</strong> locks the baseline so any unknown edge (e.g. an attacker pivot) is flagged on every occurrence.
+            Fingerprint your network, then freeze before running the attack.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => void runBaseline(() => baselineService.setMode('learning'), 'learning — baseline is recording normal traffic')}
+              disabled={baselineState.kind === 'pending'}
+              className="rounded border border-cyan/60 bg-cyan/10 px-3 py-2 text-xs text-cyan transition hover:bg-cyan/20 disabled:opacity-40"
+            >
+              start learning
+            </button>
+            <button
+              type="button"
+              onClick={() => void runBaseline(() => baselineService.setMode('frozen'), 'frozen — detection active, baseline persisted')}
+              disabled={baselineState.kind === 'pending'}
+              className="rounded border border-emerald-400/60 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-300 transition hover:bg-emerald-400/20 disabled:opacity-40"
+            >
+              freeze &amp; detect
+            </button>
+            <button
+              type="button"
+              onClick={() => void runBaseline(() => baselineService.reset(), 'baseline cleared — relearning from scratch')}
+              disabled={baselineState.kind === 'pending'}
+              className="rounded border border-rose-400/50 bg-rose-400/10 px-3 py-2 text-xs text-rose-300 transition hover:bg-rose-400/20 disabled:opacity-40"
+            >
+              reset
+            </button>
+            <span className="ml-auto font-mono text-[11px] text-[rgb(var(--lated-muted))]">
+              {baseline ? `${baseline.edge_count} known edges` : ''}
+            </span>
+          </div>
+
+          {baselineState.kind === 'ok' && <p className="mt-3 text-xs text-emerald-300">{baselineState.message}</p>}
+          {baselineState.kind === 'err' && <p className="mt-3 text-xs text-rose-300">{baselineState.message}</p>}
         </GlassCard>
       </section>
     </div>

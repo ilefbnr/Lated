@@ -38,6 +38,7 @@ from lated.supervision.alerts.alert_repository import AlertRepository
 from lated.supervision.api.routes_alerts import router as alerts_router
 from lated.supervision.api.routes_attack_paths import router as paths_router
 from lated.supervision.api.routes_auth import router as auth_router
+from lated.supervision.api.routes_baseline import router as baseline_router
 from lated.supervision.api.routes_discovery import router as discovery_router
 from lated.supervision.api.routes_flows import router as flows_router
 from lated.supervision.api.routes_graph import router as graph_router
@@ -175,6 +176,8 @@ def create_app(
         realtime_graph=app.state.realtime_graph,
         ws_channels=app.state.ws_channels,
         detection_pipeline=app.state.live_detection_pipeline,
+        hosts_repository=app.state.hosts_repository,
+        flows_repository=app.state.flows_repository,
     )
 
     app.add_middleware(
@@ -194,6 +197,7 @@ def create_app(
     app.include_router(flows_router)
     app.include_router(paths_router)
     app.include_router(realtime_router)
+    app.include_router(baseline_router)
 
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket):

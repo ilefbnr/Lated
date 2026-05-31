@@ -113,6 +113,7 @@ def build_components(
     rare_edge_detector = RareEdgeDetector.from_baseline_path(
         baseline_path,
         window_seconds=config.graph.snapshot_window_seconds,
+        host_registry=registry,
     )
 
     mitre_rules_detector: MITRERulesDetector | None = None

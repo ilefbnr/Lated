@@ -3,6 +3,7 @@
 // =============================================================================
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 import {
@@ -99,8 +100,8 @@ export default function LoginPage() {
         />
 
         <div className="relative z-[1] flex items-center gap-4">
-          <span className="lated-logo-halo inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--lated-grad-brand)] text-base font-semibold text-white shadow-[0_8px_32px_rgba(139,107,240,0.45)]">
-            L
+          <span className="lated-logo-halo inline-flex h-11 w-11 items-center justify-center rounded-2xl shadow-[0_8px_32px_rgba(139,107,240,0.45)]">
+            <Image src="/logo.png" alt="LateD logo" width={44} height={44} className="h-11 w-11 object-contain" priority />
           </span>
           <div>
             <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.32em] text-[rgb(var(--lated-muted))]">LATED</p>
@@ -109,8 +110,8 @@ export default function LoginPage() {
         </div>
 
         <div className="relative z-[1] flex flex-col items-start gap-7">
-          <div className="lated-logo-halo lated-anim-float inline-flex h-[240px] w-[240px] items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.16),transparent_62%),var(--lated-grad-brand)] text-[92px] font-semibold text-white shadow-[0_24px_48px_rgba(139,107,240,0.55)]">
-            L
+          <div className="lated-logo-halo lated-anim-float inline-flex h-[240px] w-[240px] items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.16),transparent_62%),var(--lated-grad-brand)] shadow-[0_24px_48px_rgba(139,107,240,0.55)]">
+            <Image src="/logo.png" alt="LateD logo" width={240} height={240} className="h-[240px] w-[240px] object-contain" priority />
           </div>
 
           <div>

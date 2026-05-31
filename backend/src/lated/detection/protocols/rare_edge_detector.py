@@ -61,10 +61,16 @@ class RareEdgeDetector:
         thresholds: RareEdgeThresholds | None = None,
         baseline_path: str | Path | None = None,
         original_payload: dict | None = None,
+        host_registry=None,
     ):
         self.window = SlidingWindow(size_seconds=window_seconds)
         self.thresholds = thresholds or RareEdgeThresholds()
         self.baseline_path: Path | None = Path(baseline_path) if baseline_path else None
+        # Optional live host registry — lets save() rebuild the baseline
+        # topology (nodes/subnets) from the REAL hosts observed on the wire,
+        # so the persisted baseline reflects this environment, not the
+        # shipped bootstrap fixture.
+        self.host_registry = host_registry
         # Keep the loaded JSON minus its `edges` so we don't lose `nodes`,
         # `subnets`, `created_at`, … when we rewrite the file.
         self._original_payload: dict = dict(original_payload or {})
@@ -78,6 +84,11 @@ class RareEdgeDetector:
             for pair in baseline_edges:
                 self._edges[pair] = EdgeStats(count=0)
         self._dirty: bool = False
+        # Learning vs frozen. While learning, observed edges are recorded as
+        # "normal" and NO alerts are emitted (we are building the baseline).
+        # Once frozen, the baseline stops growing and any edge absent from it
+        # is flagged on every occurrence (so a replayed attack keeps firing).
+        self.learning: bool = True
 
     # ----------------------------------------------------------------- API
 
@@ -87,6 +98,7 @@ class RareEdgeDetector:
         baseline_path: str | Path | None,
         window_seconds: int = 60,
         thresholds: RareEdgeThresholds | None = None,
+        host_registry=None,
     ) -> "RareEdgeDetector":
         edges: dict[tuple[str, str], EdgeStats] = {}
         payload: dict = {}
@@ -117,6 +129,7 @@ class RareEdgeDetector:
             thresholds=thresholds,
             baseline_path=baseline_path,
             original_payload=payload,
+            host_registry=host_registry,
         )
 
     def score(self, flow_stream: Iterable[CanonicalFlow]) -> Iterator[ReconScore]:
@@ -152,6 +165,13 @@ class RareEdgeDetector:
             for (src, dst), stats in sorted(self._edges.items())
         ]
         payload = dict(self._original_payload)
+        # When a live registry is wired, rebuild the topology (nodes + subnets)
+        # from the hosts actually observed in the learned edges, so the baseline
+        # describes THIS network rather than the shipped bootstrap fixture.
+        if self.host_registry is not None:
+            nodes, subnets = self._rebuild_topology()
+            payload["nodes"] = nodes
+            payload["subnets"] = subnets
         payload["edges"] = edges_serialized
         payload["last_updated"] = datetime.now(timezone.utc).isoformat()
 
@@ -180,13 +200,81 @@ class RareEdgeDetector:
     def edge_count(self) -> int:
         return len(self._edges)
 
+    # --------------------------------------------------- learn / freeze control
+
+    def set_learning(self, value: bool) -> None:
+        """Toggle the baseline between learning (record + suppress alerts) and
+        frozen (no growth + alert on every unknown edge)."""
+        self.learning = bool(value)
+
+    def reset(self) -> None:
+        """Wipe the ENTIRE baseline — learned edges AND the inherited bootstrap
+        topology (nodes/subnets/gateways from the shipped fixture) — so the
+        detector relearns THIS environment from scratch. Marks dirty so the
+        next save persists the empty state."""
+        self._edges.clear()
+        self._original_payload = {}
+        self._dirty = True
+
+    def status(self) -> dict:
+        """Snapshot for the SOC UI baseline control."""
+        return {
+            "mode": "learning" if self.learning else "frozen",
+            "learning": self.learning,
+            "edge_count": len(self._edges),
+            "is_dirty": self._dirty,
+            "baseline_path": str(self.baseline_path) if self.baseline_path else None,
+        }
+
     # ------------------------------------------------------------- internals
+
+    def _rebuild_topology(self) -> tuple[list[dict], dict[str, list[str]]]:
+        """Build (nodes, subnets) from the hosts present in the learned edges,
+        resolved through the live host registry. Any pre-existing offline node
+        metadata is preserved and overlaid so nothing is lost."""
+        nodes_by_id: dict[str, dict] = {}
+        for node in self._original_payload.get("nodes", []):
+            host_id = node.get("host_id")
+            if host_id:
+                nodes_by_id[host_id] = dict(node)
+
+        host_ids: set[str] = set()
+        for src, dst in self._edges:
+            host_ids.add(src)
+            host_ids.add(dst)
+
+        for host_id in host_ids:
+            try:
+                host = self.host_registry.get(host_id)
+            except Exception:
+                continue
+            nodes_by_id[host_id] = {
+                "host_id": host_id,
+                "hostname": host.hostname,
+                "subnet": host.subnet,
+                "ip_addresses": list(host.ip_addresses),
+                "first_seen": host.first_seen.isoformat() if getattr(host, "first_seen", None) else None,
+                "last_seen": host.last_seen.isoformat() if getattr(host, "last_seen", None) else None,
+                "os_guess": getattr(host, "os_guess", None),
+            }
+
+        nodes = [nodes_by_id[k] for k in sorted(nodes_by_id)]
+        subnets: dict[str, list[str]] = {}
+        for node in nodes:
+            subnet = node.get("subnet")
+            if subnet:
+                subnets.setdefault(subnet, []).append(node["host_id"])
+        return nodes, subnets
 
     def _record_edge(self, flow: CanonicalFlow, ts_iso: str) -> bool:
         """Update stats for this flow's edge. Returns True iff edge was novel."""
         key = (flow.src_host, flow.dst_host)
         stats = self._edges.get(key)
         is_novel = stats is None
+        if not self.learning:
+            # Frozen: report novelty but never mutate the baseline, so unknown
+            # (e.g. attack) edges keep firing and are never absorbed as normal.
+            return is_novel
         if stats is None:
             stats = EdgeStats(count=0, first_seen=ts_iso, last_seen=ts_iso)
             self._edges[key] = stats
@@ -217,7 +305,8 @@ class RareEdgeDetector:
                 if self._record_edge(flow, start_iso):
                     novel.append(flow)
 
-            if not novel:
+            # While learning we only build the baseline — never alert.
+            if self.learning or not novel:
                 continue
 
             targets = sorted({flow.dst_host for flow in novel})

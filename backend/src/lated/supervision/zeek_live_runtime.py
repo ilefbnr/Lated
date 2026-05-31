@@ -27,16 +27,23 @@ class ZeekLiveRuntime:
         realtime_graph,
         ws_channels,
         detection_pipeline=None,
+        hosts_repository=None,
+        flows_repository=None,
     ):
         self.config = config
         self.host_registry = host_registry or HostRegistry()
         self.realtime_graph = realtime_graph
         self.ws_channels = ws_channels
         self.detection_pipeline = detection_pipeline
+        self.hosts_repository = hosts_repository
+        self.flows_repository = flows_repository
         self.normalizer = FlowNormalizer(self.host_registry)
         self.validator = FlowValidator()
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
+        # Hosts already written to the hosts table this run — avoids re-upserting
+        # the same host on every flow (the realtime graph dedups nodes the same way).
+        self._persisted_hosts: set[str] = set()
 
     def start(self) -> None:
         if self._thread is not None and self._thread.is_alive():
@@ -81,6 +88,7 @@ class ZeekLiveRuntime:
                     continue
                 flow = CanonicalSchema.from_normalized(normalized)
                 self.realtime_graph.ingest(flow)
+                self._persist_supervision(flow)
                 self._publish_flow(flow.model_dump(mode="json"))
                 if self.detection_pipeline is not None:
                     try:
@@ -90,6 +98,26 @@ class ZeekLiveRuntime:
                         pass
             except Exception:
                 continue
+
+    def _persist_supervision(self, flow) -> None:
+        """Write the live flow + its endpoints into the supervision DB so the
+        REST views (/flows, /hosts) reflect real traffic. Best-effort: a DB
+        hiccup must never break live graph ingestion."""
+        if self.flows_repository is not None:
+            try:
+                self.flows_repository.record(flow)
+            except Exception:
+                pass
+        if self.hosts_repository is not None and self.host_registry is not None:
+            for host_id in (flow.src_host, flow.dst_host):
+                if host_id in self._persisted_hosts:
+                    continue
+                try:
+                    host = self.host_registry.get(host_id)
+                    self.hosts_repository.upsert(host)
+                    self._persisted_hosts.add(host_id)
+                except Exception:
+                    pass
 
     def _publish_flow(self, payload: dict) -> None:
         event = WSEvent(

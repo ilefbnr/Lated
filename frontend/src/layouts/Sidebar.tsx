@@ -3,6 +3,7 @@
 // =============================================================================
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 import {
@@ -45,8 +46,8 @@ export function Sidebar() {
   return (
     <aside className="glass m-3 mr-0 flex w-[232px] shrink-0 flex-col gap-1 p-4" aria-label="Primary">
       <div className="mb-[18px] flex items-center gap-3 px-2 py-[6px]">
-        <span className="lated-logo-halo inline-flex h-[38px] w-[38px] items-center justify-center rounded-2xl bg-[var(--lated-grad-brand)] text-sm font-semibold text-white shadow-[0_10px_28px_rgba(139,107,240,0.35)]">
-          L
+        <span className="lated-logo-halo inline-flex h-[38px] w-[38px] items-center justify-center rounded-2xl shadow-[0_10px_28px_rgba(139,107,240,0.35)]">
+          <Image src="/logo.png" alt="LateD logo" width={38} height={38} className="h-[38px] w-[38px] object-contain" priority />
         </span>
         <div>
           <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.3em] text-[rgb(var(--lated-muted))]">LATED</p>
