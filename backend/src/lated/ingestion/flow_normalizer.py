@@ -47,6 +47,23 @@ class FlowNormalizer:
             raw.get("resp_bytes"),
         )
 
+        # Preserve the directional + state fields straight from the Zeek conn
+        # record (kept separate from the totals above) so the runtime featurizer
+        # can reconstruct the same vector the model saw during training. Prefer
+        # application-layer bytes (orig_bytes); fall back to IP bytes.
+        orig_bytes = self._coerce_int(raw.get("orig_bytes"))
+        if orig_bytes is None:
+            orig_bytes = self._coerce_int(raw.get("orig_ip_bytes"))
+        resp_bytes = self._coerce_int(raw.get("resp_bytes"))
+        if resp_bytes is None:
+            resp_bytes = self._coerce_int(raw.get("resp_ip_bytes"))
+        orig_pkts = self._coerce_int(raw.get("orig_pkts"))
+        resp_pkts = self._coerce_int(raw.get("resp_pkts"))
+        conn_state = raw.get("conn_state")
+        conn_state = str(conn_state) if conn_state is not None else None
+        local_orig = self._coerce_bool(raw.get("local_orig"))
+        local_resp = self._coerce_bool(raw.get("local_resp"))
+
         src_host = self._resolve(src_ip, ts) if src_ip else None
         dst_host = self._resolve(dst_ip, ts) if dst_ip else None
 
@@ -69,6 +86,13 @@ class FlowNormalizer:
             "duration": duration if duration is not None else 0.0,
             "packet_count": packet_count if packet_count is not None else 0,
             "byte_count": byte_count if byte_count is not None else 0,
+            "orig_bytes": orig_bytes,
+            "resp_bytes": resp_bytes,
+            "orig_pkts": orig_pkts,
+            "resp_pkts": resp_pkts,
+            "conn_state": conn_state,
+            "local_orig": local_orig,
+            "local_resp": local_resp,
             "source_sensor": source_sensor,
             "enrichment": enrichment,
         }
@@ -101,6 +125,22 @@ class FlowNormalizer:
             return int(value)
         except (TypeError, ValueError):
             return None
+
+    @staticmethod
+    def _coerce_bool(value: Any) -> bool | None:
+        if value is None:
+            return None
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            v = value.strip().lower()
+            if v in ("t", "true", "1", "yes"):
+                return True
+            if v in ("f", "false", "0", "no", "-"):
+                return False
+        return None
 
     @staticmethod
     def _coerce_float(value: Any) -> float | None:

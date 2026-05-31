@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 import { GlassCard } from '@/components/ui/GlassCard';
-import { discoveryService } from '@/services/discoveryService';
-import type { DiscoveryRunResult } from '@/types/discovery';
 import { useGraphData } from '@/hooks/useGraphData';
+import { formatShortDate } from '@/lib/socUi';
+import { discoveryService } from '@/services/discoveryService';
 import { useGraphStore } from '@/stores/graphStore';
+import type { DiscoveryRunResult } from '@/types/discovery';
 
 const AttackGraphCanvas = dynamic(
   () => import('@/components/graph/AttackGraphCanvas').then((mod) => mod.AttackGraphCanvas),
-  { ssr: false, loading: () => <div className="text-sm text-muted p-6">Loading topology…</div> },
+  { ssr: false, loading: () => <div className="p-6 text-sm text-[rgb(var(--lated-muted))]">Loading topology...</div> },
 );
 
 export default function DiscoveryPage() {
@@ -75,12 +76,12 @@ export default function DiscoveryPage() {
     <div className="grid grid-cols-12 gap-6 p-6">
       <section className="col-span-12 xl:col-span-4 flex flex-col gap-6">
         <GlassCard>
-          <p className="text-xs uppercase tracking-[0.25em] text-muted mb-3">Discovery Control</p>
+          <p className="lated-eyebrow mb-3">Discovery Control</p>
           <div className="flex flex-col gap-3">
             <select
               value={sourceKind}
               onChange={(event) => setSourceKind(event.target.value as 'zeek' | 'pcap')}
-              className="bg-elevated/40 border border-outline/60 text-ink text-sm rounded px-3 py-2"
+              className="rounded border border-outline/70 bg-elevated px-3 py-2 text-sm text-ink outline-none transition focus:border-cyan/60"
             >
               <option value="zeek">Zeek</option>
               <option value="pcap">PCAP</option>
@@ -89,15 +90,16 @@ export default function DiscoveryPage() {
               value={sourceValue}
               onChange={(event) => setSourceValue(event.target.value)}
               placeholder="source path"
-              className="bg-elevated/40 border border-outline/60 text-ink text-sm rounded px-3 py-2 font-mono"
+              className="rounded border border-outline/70 bg-elevated px-3 py-2 font-mono text-sm text-ink outline-none transition placeholder:text-[rgb(var(--lated-faint))] focus:border-cyan/60"
             />
-            <input type="file" onChange={(event) => void uploadAndUse(event)} className="text-xs text-muted" />
+            <input type="file" onChange={(event) => void uploadAndUse(event)} className="text-xs text-[rgb(var(--lated-muted))]" />
             <button
+              type="button"
               onClick={() => void runDiscovery()}
               disabled={busy || sourceValue.trim().length === 0}
-              className="px-3 py-2 text-xs rounded border border-cyan/60 text-cyan hover:bg-cyan/10 disabled:opacity-40"
+              className="rounded border border-cyan/60 bg-cyan/10 px-3 py-2 text-xs text-cyan transition hover:bg-cyan/20 disabled:opacity-40"
             >
-              {busy ? 'running…' : 'run discovery'}
+              {busy ? 'running...' : 'run discovery'}
             </button>
             {message && <p className="text-xs text-emerald-300">{message}</p>}
             {error && <p className="text-xs text-rose-300">{error}</p>}
@@ -105,52 +107,52 @@ export default function DiscoveryPage() {
         </GlassCard>
 
         <GlassCard>
-          <p className="text-xs uppercase tracking-[0.25em] text-muted mb-3">Latest Run</p>
+          <p className="lated-eyebrow mb-3">Latest Run</p>
           {latest ? (
-            <div className="flex flex-col gap-2 text-sm text-muted">
+            <div className="flex flex-col gap-1.5 text-sm text-[rgb(var(--lated-muted))]">
               <p><span className="text-ink">Source:</span> {latest.source_kind}</p>
               <p><span className="text-ink">Hosts:</span> {latest.host_count}</p>
               <p><span className="text-ink">Edges:</span> {latest.edge_count}</p>
               <p><span className="text-ink">Subnets:</span> {latest.subnet_count}</p>
-              <p><span className="text-ink">Generated:</span> {new Date(latest.generated_at).toLocaleString()}</p>
+              <p><span className="text-ink">Generated:</span> {formatShortDate(latest.generated_at)}</p>
             </div>
           ) : (
-            <p className="text-sm text-muted">No discovery run recorded yet.</p>
+            <p className="text-sm text-[rgb(var(--lated-muted))]">No discovery run recorded yet.</p>
           )}
         </GlassCard>
 
         <GlassCard>
-          <p className="text-xs uppercase tracking-[0.25em] text-muted mb-3">Run History</p>
-          <ul className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+          <p className="lated-eyebrow mb-3">Run History</p>
+          <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto">
             {history.map((row) => (
-              <li key={row.job_id} className="px-3 py-2 rounded border border-outline/40 bg-elevated/40 text-xs text-muted">
-                <p className="text-ink font-mono truncate">{row.job_id}</p>
+              <li key={row.job_id} className="rounded-md border border-outline/70 bg-elevated px-3 py-2 text-[11px] text-[rgb(var(--lated-muted))]">
+                <p className="font-mono text-ink">{row.job_id}</p>
                 <p>{row.source_kind} • {row.host_count} hosts • {row.edge_count} edges</p>
               </li>
             ))}
-            {history.length === 0 && <p className="text-sm text-muted">No history yet.</p>}
+            {history.length === 0 && <p className="text-sm text-[rgb(var(--lated-muted))]">No history yet.</p>}
           </ul>
         </GlassCard>
       </section>
 
-      <section className="col-span-12 xl:col-span-8 flex flex-col gap-6">
+      <section className="col-span-12 xl:col-span-8">
         <GlassCard>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-muted mb-2">Baseline Topology</p>
-              <p className="text-sm text-muted">
-                {generatedAt ? `Generated ${new Date(generatedAt).toLocaleString()}` : 'No baseline available.'}
+              <p className="lated-eyebrow mb-1.5">Baseline Topology</p>
+              <p className="text-sm text-[rgb(var(--lated-muted))]">
+                {generatedAt ? `Generated ${formatShortDate(generatedAt)}` : 'No baseline available.'}
               </p>
             </div>
             {summary && (
-              <div className="flex gap-4 text-xs text-muted font-mono flex-wrap">
+              <div className="flex gap-4 flex-wrap font-mono text-[11px] text-[rgb(var(--lated-muted))]">
                 <span>{summary.host_count} hosts</span>
                 <span>{summary.edge_count} edges</span>
                 <span>{summary.subnet_count} subnets</span>
               </div>
             )}
           </div>
-          <div className="h-[420px] mt-4">
+          <div className="mt-4 h-[420px]">
             <AttackGraphCanvas nodes={nodes} edges={edges} />
           </div>
         </GlassCard>

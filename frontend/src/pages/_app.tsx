@@ -18,6 +18,7 @@ if (typeof window !== 'undefined') {
 
 import { SOCLayout } from '@/layouts/SOCLayout';
 import { useBootstrapWebSocket } from '@/hooks/useWebSocket';
+import { useUIStore } from '@/stores/uiStore';
 import { useUserStore } from '@/stores/userStore';
 
 const PUBLIC_ROUTES = new Set(['/login']);
@@ -40,6 +41,8 @@ function AppShell({ pathname, children }: AppShellProps) {
   const user = useUserStore((state) => state.user);
   const loading = useUserStore((state) => state.loading);
   const hydrate = useUserStore((state) => state.hydrate);
+  const theme = useUIStore((state) => state.theme);
+  const setTheme = useUIStore((state) => state.setTheme);
 
   // Resolve current identity on first mount.
   useEffect(() => {
@@ -47,6 +50,29 @@ function AppShell({ pathname, children }: AppShellProps) {
     void hydrate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const persisted = window.localStorage.getItem('lated-theme');
+      if (persisted === 'dark' || persisted === 'light') {
+        setTheme(persisted);
+      }
+    } catch {
+      // ignore storage failures
+    }
+  }, [setTheme]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    try {
+      window.localStorage.setItem('lated-theme', theme);
+    } catch {
+      // ignore storage failures
+    }
+  }, [theme]);
 
   // Guard non-public routes — redirect to /login when no user.
   useEffect(() => {

@@ -13,7 +13,7 @@ export interface SOCLayoutProps {
 
 export function SOCLayout({ children }: SOCLayoutProps) {
   return (
-    <div className="flex min-h-screen h-screen bg-canvas text-ink">
+    <div className="relative flex min-h-screen h-screen overflow-hidden bg-[rgb(var(--lated-canvas))] text-[rgb(var(--lated-ink))]">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar />

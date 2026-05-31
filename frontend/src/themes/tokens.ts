@@ -30,6 +30,21 @@ export const palette = {
     high:     '#FB923C',
     critical: '#F43F5E',
   },
+  // Network-zone accents. Used as a SECONDARY visual cue (border tint) so
+  // risk colors stay dominant. Tuned to remain readable on the dark canvas.
+  zone: {
+    corporate:    '#22D3EE',  // cyan — matches default node accent
+    dmz:          '#A78BFA',  // violet
+    datacenter:   '#F472B6',  // pink — flags sensitive infrastructure
+    iot:          '#34D399',  // green
+    ot:           '#FDE047',  // yellow
+    public_owned: '#38BDF8',  // sky
+    partner:      '#FB7185',  // rose
+    external:     '#FB923C',  // orange — matches existing edge-external
+    unknown:      '#64748B',  // slate
+  },
+  // Critical asset marker: warm gold ring around DC / SQL prod / jump hosts.
+  critical: '#FFD43B',
 } as const;
 
 export type SeverityKey = keyof typeof palette.sev;

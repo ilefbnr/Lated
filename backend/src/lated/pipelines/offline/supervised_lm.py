@@ -20,11 +20,10 @@
 # and metric protocol so their results can be compared apples-to-apples by
 # `compare_training.py`.
 #
-# LABEL FILTER (identical to finetune_lm.py)
-# ------------------------------------------
-#   - label 2 (LM_ok)  → target = 1
-#   - label 0 (benign) → target = 0
-#   - label 1 (recon)  → EXCLUDED from the loss (recon is a separate head)
+# LABEL CONVENTION (binary, from weak_labeler.py)
+# -----------------------------------------------
+#   - label 1 (LM)     → target = 1
+#   - label 0 (benign) → target = 0   (includes recon, ignored by design)
 #
 # CLASS IMBALANCE
 # ---------------
@@ -141,20 +140,17 @@ def _stream_epoch(*, memory, embedder, lm_head, neighbor_loader,
         # 3) Head prediction.
         logits = lm_head(z_src, z_dst, msg)
 
-        # 4) Supervised BCE on LM-vs-benign (mask recon).
-        mask = (y != 1)
-        if mask.any():
-            target = (y[mask] == 2).float()
-            logits_eff = logits[mask]
-            loss = loss_fn(logits_eff, target)
-            if train:
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-            total_loss += loss.item() * logits_eff.size(0)
-            total_examples += logits_eff.size(0)
-            all_scores.append(torch.sigmoid(logits_eff).detach().cpu())
-            all_labels.append(target.detach().cpu())
+        # 4) Supervised BCE on full batch — labels are binary {0, 1}.
+        target = y.float()
+        loss = loss_fn(logits, target)
+        if train:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        total_loss += loss.item() * logits.size(0)
+        total_examples += logits.size(0)
+        all_scores.append(torch.sigmoid(logits).detach().cpu())
+        all_labels.append(target.detach().cpu())
 
         # 5) Stream memory state forward on ALL events — must match the
         #    inference-time protocol regardless of label.
@@ -192,7 +188,7 @@ def run(cfg: SupervisedConfig | None = None) -> Path:
 
     # Class-imbalance weight (same convention as finetune_lm.py).
     y = train_blob["labels"]
-    pos = int((y == 2).sum())
+    pos = int((y == 1).sum())
     neg = int((y == 0).sum())
     pos_weight = max(neg / max(pos, 1), 1.0)
     print(f"[supervised] train: pos={pos} neg={neg} pos_weight={pos_weight:.1f}")

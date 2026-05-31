@@ -15,7 +15,7 @@
 #     "dst_ids":    LongTensor [N]
 #     "ts":         FloatTensor [N]     UNIX seconds (kept as float for memory)
 #     "edge_feat":  FloatTensor [N, F]  F = EDGE_FEAT_DIM
-#     "labels":     LongTensor [N]      0 benign / 1 recon / 2 LM_ok
+#     "labels":     LongTensor [N]      0 benign / 1 LM   (binary)
 #     "n_nodes":    int
 #     "ip_to_id":   dict[str, int]      for inverse mapping in eval reports
 #     "edge_feat_dim": int

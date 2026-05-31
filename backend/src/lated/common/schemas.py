@@ -89,10 +89,7 @@ class DetectorName(str, Enum):
     SMB = "smb_detector"
     RDP = "rdp_detector"
     WINRM = "winrm_detector"
-    LDAP_KERBEROS = "ldap_kerberos_detector"
     RARE_EDGE = "rare_edge_detector"
-    PRIVILEGED_ACCESS = "privileged_asset_access_detector"
-    PIVOT = "pivot_detector"
     MITRE_RULES = "mitre_rules"
 
 
@@ -144,6 +141,18 @@ class CanonicalFlow(BaseSchemaModel):
     duration: float = Field(ge=0)
     packet_count: int = Field(ge=0)
     byte_count: int = Field(ge=0)
+    # Directional + state fields preserved from the raw Zeek conn record so the
+    # runtime featurizer can reproduce the EXACT 47-dim vector used in training
+    # (idx 19/20 orig/resp bytes, 21/22 orig/resp pkts, 23..32 conn_state,
+    # 33/34 local_orig/local_resp). Optional: absent for non-Zeek sensors, in
+    # which case the featurizer falls back to totals — see runtime_featurizer.
+    orig_bytes: int | None = Field(default=None, ge=0)
+    resp_bytes: int | None = Field(default=None, ge=0)
+    orig_pkts: int | None = Field(default=None, ge=0)
+    resp_pkts: int | None = Field(default=None, ge=0)
+    conn_state: str | None = None
+    local_orig: bool | None = None
+    local_resp: bool | None = None
     source_sensor: str
     # Protocol-level enrichment derived from sibling Zeek logs (smb_files,
     # smb_mapping, dce_rpc, ntlm, kerberos). Empty when the live enricher

@@ -21,16 +21,78 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --lated-canvas: 7 10 18;
+  --lated-surface: 14 19 32;
+  --lated-elevated: 20 26 43;
+  --lated-outline: 31 41 66;
+  --lated-outline-strong: 42 55 95;
+  --lated-ink: 230 234 243;
+  --lated-muted: 124 138 169;
+  --lated-faint: 109 121 151;
+  --lated-brand: 167 139 250;
+  --lated-brand-strong: 183 156 255;
+  --lated-violet-blue: 111 124 247;
+  --lated-cyan: 34 211 238;
+  --lated-neon: 125 249 255;
+  --lated-sev-info: 96 165 250;
+  --lated-sev-low: 52 211 153;
+  --lated-sev-medium: 251 191 36;
+  --lated-sev-high: 251 146 60;
+  --lated-sev-critical: 244 63 94;
+  --lated-bg-image:
+    radial-gradient(1200px 600px at 70% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
+    radial-gradient(1000px 500px at 10% 110%, rgba(167, 139, 250, 0.06), transparent 60%);
+  --lated-scanline-color: rgba(255, 255, 255, 0.015);
+  --lated-glass-bg: rgba(14, 19, 32, 0.6);
+  --lated-grad-brand: linear-gradient(135deg, rgb(var(--lated-brand-strong)) 0%, rgb(var(--lated-brand)) 45%, rgb(var(--lated-violet-blue)) 100%);
+}
+
+[data-theme='light'] {
+  --lated-canvas: 243 246 252;
+  --lated-surface: 255 255 255;
+  --lated-elevated: 244 247 255;
+  --lated-outline: 212 221 241;
+  --lated-outline-strong: 186 198 226;
+  --lated-ink: 17 24 39;
+  --lated-muted: 92 106 138;
+  --lated-faint: 129 141 166;
+  --lated-brand: 139 107 240;
+  --lated-brand-strong: 111 124 247;
+  --lated-violet-blue: 87 104 217;
+  --lated-cyan: 8 145 178;
+  --lated-neon: 14 165 233;
+  --lated-sev-info: 37 99 235;
+  --lated-sev-low: 5 150 105;
+  --lated-sev-medium: 202 138 4;
+  --lated-sev-high: 234 88 12;
+  --lated-sev-critical: 225 29 72;
+  --lated-bg-image:
+    radial-gradient(1000px 540px at 10% 0%, rgba(139, 107, 240, 0.16), transparent 58%),
+    radial-gradient(900px 520px at 90% 100%, rgba(8, 145, 178, 0.12), transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(241,245,255,0.96));
+  --lated-scanline-color: rgba(15, 23, 42, 0.02);
+  --lated-glass-bg: rgba(255, 255, 255, 0.72);
+}
+
 @layer base {
   html, body, #__next {
-    @apply h-full bg-canvas text-ink antialiased font-sans;
+    @apply h-full antialiased font-sans;
   }
+
+  html {
+    background: rgb(var(--lated-canvas));
+    color: rgb(var(--lated-ink));
+  }
+
   body {
-    background-image:
-      radial-gradient(1200px 600px at 70% -10%, rgba(34, 211, 238, 0.08), transparent 60%),
-      radial-gradient(1000px 500px at 10% 110%, rgba(167, 139, 250, 0.06), transparent 60%);
+    background: rgb(var(--lated-canvas));
+    background-image: var(--lated-bg-image);
     background-attachment: fixed;
+    color: rgb(var(--lated-ink));
+    transition: background-color 350ms cubic-bezier(0.4, 0, 0.2, 1), color 350ms cubic-bezier(0.4, 0, 0.2, 1);
   }
+
   /* Subtle scanline overlay — pure cosmetic, SOC vibe. */
   body::before {
     content: '';
@@ -39,26 +101,144 @@
       to bottom,
       transparent 0px,
       transparent 2px,
-      rgba(255, 255, 255, 0.015) 3px
+      var(--lated-scanline-color) 3px
     );
     pointer-events: none;
     z-index: 0;
+  }
+
+  * {
+    scrollbar-color: rgb(var(--lated-outline-strong)) transparent;
+  }
+
+  ::selection {
+    background: rgb(var(--lated-brand) / 0.28);
+    color: rgb(var(--lated-ink));
   }
 }
 
 @layer components {
   /* Glassmorphism panel — used by every dashboard card. */
   .glass {
-    @apply bg-surface/60 backdrop-blur-glass border border-outline/60
-           rounded-2xl shadow-panel;
+    @apply backdrop-blur-glass rounded-2xl shadow-panel;
+    background: var(--lated-glass-bg);
+    border: 1px solid rgb(var(--lated-outline) / 0.75);
   }
+
   /* Section heading with a faint cyan rail. */
   .section-title {
-    @apply text-xs uppercase tracking-[0.18em] text-muted
-           border-l-2 border-cyan/60 pl-3;
+    @apply text-xs uppercase tracking-[0.18em] pl-3;
+    color: rgb(var(--lated-muted));
+    border-left: 2px solid rgb(var(--lated-cyan) / 0.6);
   }
+
   /* Telemetry monospace value (counters, hashes). */
   .mono-val {
     @apply font-mono text-ink;
   }
+
+  .lated-eyebrow {
+    @apply text-[10px] uppercase tracking-[0.3em];
+    color: rgb(var(--lated-muted));
+  }
+
+  .lated-hero {
+    @apply font-display font-semibold leading-[0.95] tracking-[-0.04em] text-ink;
+  }
+
+  .lated-hero--brand {
+    background: var(--lated-grad-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .lated-logo-halo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lated-logo-halo::before {
+    content: '';
+    position: absolute;
+    inset: -18%;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle, rgb(var(--lated-brand) / 0.28) 0%, transparent 62%),
+      radial-gradient(circle at 65% 35%, rgb(var(--lated-violet-blue) / 0.18) 0%, transparent 52%);
+    filter: blur(16px);
+    z-index: -1;
+  }
+
+  .lated-badge {
+    @apply inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider;
+  }
+
+  .lated-badge--cyan {
+    border-color: rgb(var(--lated-cyan) / 0.6);
+    color: rgb(var(--lated-cyan));
+    background: rgb(var(--lated-cyan) / 0.1);
+  }
+
+  .lated-badge--violet {
+    border-color: rgb(var(--lated-brand) / 0.6);
+    color: rgb(var(--lated-brand));
+    background: rgb(var(--lated-brand) / 0.1);
+  }
+
+  .lated-badge--muted {
+    border-color: rgb(var(--lated-outline));
+    color: rgb(var(--lated-muted));
+  }
+
+  .lated-btn-brand {
+    @apply rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white transition;
+    background: var(--lated-grad-brand);
+  }
+
+  .lated-btn-brand:hover {
+    filter: brightness(1.08);
+  }
+
+  .lated-btn-brand:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .lated-anim-pulse-dot {
+    animation: latedPulseDot 2.2s ease-in-out infinite;
+  }
+
+  .lated-anim-float {
+    animation: latedFloat 6s ease-in-out infinite;
+  }
+
+  .lated-anim-critical {
+    animation: latedCriticalPulse 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes latedPulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.6; }
+}
+
+@keyframes latedFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes latedCriticalPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(244, 63, 94, 0); }
+  50% { box-shadow: 0 0 18px rgba(244, 63, 94, 0.2); }
+}
+
+@keyframes latedDashFlow {
+  to { stroke-dashoffset: -24; }
+}
+
+@keyframes latedRingSweep {
+  to { transform: rotate(360deg); }
 }

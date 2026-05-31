@@ -11,17 +11,14 @@
 # Memory is reset at the start of each epoch and streamed forward through
 # the chronological event sequence — same protocol as inference time.
 #
-# LABEL FILTER (per design spec)
-# ------------------------------
-#   - label 2 (LM_ok)  → target = 1
-#   - label 0 (benign) → target = 0
-#   - label 1 (recon)  → EXCLUDED (lives in another head)
-#   - label 3 (LM_ko)  → would map to 1 — unused in PicoDomain
-#   - label 4 (c2)     → out of scope
+# LABEL CONVENTION (binary, from weak_labeler.py)
+# -----------------------------------------------
+#   - label 1 (LM)     → target = 1
+#   - label 0 (benign) → target = 0   (includes recon, ignored by design)
 #
 # CLASS IMBALANCE
 # ---------------
-# PicoDomain train shard: 575 LM_ok vs 191,750 benign ≈ 1:333.
+# PicoDomain train shard: ~575 LM vs ~192k benign ≈ 1:333.
 # BCEWithLogitsLoss(pos_weight=≈ratio) handles it without needing focal loss.
 #
 # OUTPUT
@@ -165,22 +162,19 @@ def _stream_epoch(*, memory, embedder, lm_head, neighbor_loader,
         # 2) LM head prediction.
         logits = lm_head(z_src, z_dst, msg)
 
-        # 3) Mask out recon (label==1) — head is binary LM-vs-benign.
-        mask = (y != 1)
-        if mask.any():
-            target = (y[mask] == 2).float()        # 1 for LM, 0 for benign
-            logits_eff = logits[mask]
-            if train:
-                loss = loss_fn(logits_eff, target)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-            else:
-                loss = loss_fn(logits_eff, target)
-            total_loss += loss.item() * logits_eff.size(0)
-            total_examples += logits_eff.size(0)
-            all_scores.append(torch.sigmoid(logits_eff).detach().cpu())
-            all_labels.append(target.detach().cpu())
+        # 3) Binary BCE on full batch — labels are already {0 benign, 1 LM}.
+        target = y.float()
+        if train:
+            loss = loss_fn(logits, target)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        else:
+            loss = loss_fn(logits, target)
+        total_loss += loss.item() * logits.size(0)
+        total_examples += logits.size(0)
+        all_scores.append(torch.sigmoid(logits).detach().cpu())
+        all_labels.append(target.detach().cpu())
 
         # 4) Stream the backbone state forward (same as inference).
         with torch.no_grad():
@@ -230,10 +224,10 @@ def run(cfg: LMConfig | None = None) -> Path:
     n_nodes       = int(train_blob["n_nodes"])
     edge_feat_dim = int(train_blob["edge_feat_dim"])
 
-    # Class-imbalance pos_weight = (#negatives / #positives) on training set,
-    # excluding recon (label 1).
+    # Class-imbalance pos_weight = (#negatives / #positives) on training set.
+    # Labels are binary: 0 benign, 1 LM.
     y = train_blob["labels"]
-    pos = int((y == 2).sum())
+    pos = int((y == 1).sum())
     neg = int((y == 0).sum())
     pos_weight = max(neg / max(pos, 1), 1.0)
     print(f"[lm-head] train: pos={pos} neg={neg} pos_weight={pos_weight:.1f}")

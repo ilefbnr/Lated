@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -182,6 +183,12 @@ class Persistence:
             connection.close()
 
     def _seed_if_empty(self) -> None:
+        # Demo seeding is OPT-IN. In live/production mode we never want fake
+        # hosts/alerts/flows/paths polluting the SOC views. Set
+        # LATED_SEED_DEMO=1 only when showing the offline UI demo against an
+        # empty database.
+        if os.environ.get("LATED_SEED_DEMO", "").strip().lower() not in {"1", "true", "yes", "on"}:
+            return
         self._seed_hosts_if_empty()
         self._seed_alerts_if_empty()
         self._seed_flows_if_empty()

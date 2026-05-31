@@ -86,6 +86,53 @@ export const cyStylesheet: StyleRule[] = [
       height: 38,
     },
   },
+  // -------- Network zone accents (subtle border tint, risk takes priority) --
+  {
+    selector: 'node.zone-datacenter',
+    style: { 'border-color': palette.zone.datacenter, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-dmz',
+    style: { 'border-color': palette.zone.dmz, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-iot',
+    style: { 'border-color': palette.zone.iot, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-ot',
+    style: { 'border-color': palette.zone.ot, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-public-owned',
+    style: { 'border-color': palette.zone.public_owned, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-partner',
+    style: { 'border-color': palette.zone.partner, 'border-width': 2 },
+  },
+  {
+    selector: 'node.zone-external',
+    style: {
+      'border-color': palette.zone.external,
+      'border-width': 2,
+      'border-style': 'dashed',
+    },
+  },
+  // -------- Critical asset (gold halo, slightly larger) --------------------
+  {
+    selector: 'node.critical-asset',
+    style: {
+      shape: 'diamond',
+      width: 34,
+      height: 34,
+      'border-color': palette.critical,
+      'border-width': 3,
+      'overlay-color': palette.critical,
+      'overlay-opacity': 0.18,
+      'overlay-padding': 6,
+    },
+  },
   {
     selector: 'node.attack-host',
     style: {
@@ -204,4 +251,22 @@ export function riskBucketClass(risk: number | undefined): string {
   if (r >= 0.5) return 'risk-high';
   if (r >= 0.25) return 'risk-medium';
   return 'risk-low';
+}
+
+/**
+ * Map a backend `zone` value to a Cytoscape class. Returns `null` for the
+ * default zone (corporate/unknown) so we don't emit redundant classes.
+ */
+export function zoneClass(zone: string | undefined | null): string | null {
+  if (!zone) return null;
+  switch (zone) {
+    case 'datacenter':   return 'zone-datacenter';
+    case 'dmz':          return 'zone-dmz';
+    case 'iot':          return 'zone-iot';
+    case 'ot':           return 'zone-ot';
+    case 'public_owned': return 'zone-public-owned';
+    case 'partner':      return 'zone-partner';
+    case 'external':     return 'zone-external';
+    default:             return null; // corporate / unknown -> baseline style
+  }
 }

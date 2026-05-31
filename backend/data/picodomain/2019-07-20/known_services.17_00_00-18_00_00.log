@@ -1,4 +1,0 @@
-{"ts":"2019-07-20T17:11:19.603177Z","host":"10.99.99.29","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-20T17:11:19.698424Z","host":"10.99.99.29","port_num":59133,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-20T17:15:19.919398Z","host":"10.99.99.27","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-20T17:15:20.028331Z","host":"10.99.99.27","port_num":51357,"port_proto":"tcp","service":["DCE_RPC"]}

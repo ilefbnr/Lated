@@ -54,10 +54,14 @@ class LiveDetectionPipeline:
         correlation_store=None,
         ws_channels,
         window_seconds: int = 60,
+        rdp_detector=None,
+        winrm_detector=None,
     ):
         self.graph_builder = graph_builder
         self.recon_detector = recon_detector
         self.smb_detector = smb_detector
+        self.rdp_detector = rdp_detector
+        self.winrm_detector = winrm_detector
         self.rare_edge_detector = rare_edge_detector
         self.mitre_rules_detector = mitre_rules_detector
         self.lm_inference = lm_inference
@@ -121,28 +125,23 @@ class LiveDetectionPipeline:
             # --- heuristic detectors (stream-friendly) ---
             recon_scores = list(self.recon_detector.run(flows)) if self.recon_detector else []
             smb_scores = list(self.smb_detector.run(flows)) if self.smb_detector else []
+            rdp_scores = list(self.rdp_detector.run(flows)) if self.rdp_detector else []
+            winrm_scores = list(self.winrm_detector.run(flows)) if self.winrm_detector else []
             rare_scores = list(self.rare_edge_detector.run(flows)) if self.rare_edge_detector else []
             rule_scores = list(self.mitre_rules_detector.run(flows)) if self.mitre_rules_detector else []
 
-            # --- TGN branch: prefer event-based real model, else snapshots ---
+            # --- TGN branch: event-based scoring only; no fallback ---
             lm_scores: list = []
-            tgn_runtime = getattr(self.lm_inference, "_tgn_runtime", None)
-            if tgn_runtime is not None and hasattr(self.lm_inference, "score_flows"):
+            if self.lm_inference is not None:
                 try:
                     lm_scores = list(self.lm_inference.score_flows(flows))
-                except Exception:
-                    lm_scores = []
-            else:
-                try:
-                    snapshots = list(self.graph_builder.run(flows)) if self.graph_builder else []
-                    lm_scores = list(self.lm_inference.run(snapshots)) if self.lm_inference else []
                 except Exception:
                     lm_scores = []
 
             # --- fusion ---
             suspicions = list(self.fusion.run(
                 lm_scores,
-                [*recon_scores, *smb_scores, *rare_scores, *rule_scores],
+                [*recon_scores, *smb_scores, *rdp_scores, *winrm_scores, *rare_scores, *rule_scores],
             )) if self.fusion else []
 
             # --- correlation ---

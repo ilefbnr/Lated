@@ -14,7 +14,12 @@ import CytoscapeComponent from 'react-cytoscapejs';
 
 import type { GraphEdge, GraphNode } from '@/types/graph';
 
-import { cyDefaultLayout, cyStylesheet, riskBucketClass } from '@/visualization/cytoscapeConfig';
+import {
+  cyDefaultLayout,
+  cyStylesheet,
+  riskBucketClass,
+  zoneClass,
+} from '@/visualization/cytoscapeConfig';
 
 export interface AttackGraphCanvasProps {
   nodes: GraphNode[];
@@ -80,6 +85,8 @@ function toElements(
   highlightedEdges: Set<string>,
   pivots: Set<string>,
 ): ElementDefinition[] {
+  const availableNodeIds = new Set(nodes.map((node) => node.data.id));
+
   // Keep only hosts that actually take part in at least one edge, plus any
   // explicitly highlighted host (attack path / pivot) so analyst selections
   // never silently disappear. This drops the "floating dots" from the
@@ -98,6 +105,9 @@ function toElements(
     )
     .map((node) => {
       const classes = [riskBucketClass(node.data.risk)];
+      const z = zoneClass(node.data.zone);
+      if (z) classes.push(z);
+      if (node.data.critical_asset) classes.push('critical-asset');
       if (pivots.has(node.data.id)) classes.push('pivot');
       if (highlightedHosts.has(node.data.id)) classes.push('attack-host');
       return {
@@ -107,7 +117,16 @@ function toElements(
       };
     });
 
-  const edgeElements: ElementDefinition[] = edges.map((edge) => {
+  const renderedNodeIds = new Set(nodeElements.map((node) => String(node.data?.id ?? '')));
+
+  const edgeElements: ElementDefinition[] = edges
+    .filter((edge) =>
+      availableNodeIds.has(edge.data.source)
+      && availableNodeIds.has(edge.data.target)
+      && renderedNodeIds.has(edge.data.source)
+      && renderedNodeIds.has(edge.data.target),
+    )
+    .map((edge) => {
     const classes: string[] = [edge.data.external ? 'edge-external' : 'edge-internal'];
     const onPath =
       highlightedEdges.has(edge.data.id) ||
@@ -120,7 +139,7 @@ function toElements(
       data: { ...edge.data, label },
       classes: classes.join(' '),
     };
-  });
+    });
 
   return [...nodeElements, ...edgeElements];
 }
@@ -262,7 +281,7 @@ export function AttackGraphCanvas({
   }, [highlightedHostIds, highlightedEdgeIds, elements]);
 
   return (
-    <div className="glass relative w-full h-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] border border-white/10 bg-surface/80 shadow-panel backdrop-blur-[18px]">
       {nodes.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-muted">
           No graph data yet.

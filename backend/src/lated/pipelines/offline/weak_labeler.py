@@ -1,27 +1,27 @@
 # =============================================================================
-# lated.pipelines.offline.weak_labeler — RedteamEvent -> per-flow labels
+# lated.pipelines.offline.weak_labeler — RedteamEvent -> per-flow binary label
 # =============================================================================
 #
 # PURPOSE
 # -------
 # Projects sparse PicoDomain Red Log events onto the (much larger) flow
-# stream. Each flow gets a label ∈ {0, 1, 2} suitable as the supervised
-# target for:
-#     - Stage 2 : LM classifier head training (target = 1 if label ∈ {2, 3})
-#     - Stage 5 : LM Fusion training (y = 1 if any LM_ok flow leaves the
-#                  host in this window)
+# stream. Each flow gets a BINARY label suitable as the supervised target
+# for the LM classifier head (Stage 2) and downstream fusion (Stage 5).
 #
-# LABEL CONVENTION (matches the design spec)
-# ------------------------------------------
-#   0  benign            (no Red Log event in scope)
-#   1  recon             (phase=="recon" event in scope)
-#   2  LM_ok             (phase ∈ LM_PHASES event in scope)
-#   3  LM_ko             unused — Red Log doesn't expose success/failure
-#   4  c2                unused — beacons are out of scope (per spec)
+# LABEL CONVENTION (binary)
+# -------------------------
+#   0  benign   (no LM event in scope — includes recon events, ignored here)
+#   1  LM       (phase ∈ LM_PHASES event in scope)
+#
+# Recon events are NOT used as a supervised target: in this codebase recon
+# is detected by the online heuristic head (sliding_window / burst /
+# fanout / port_diversity) rather than by the TGN head. Folding recon into
+# `benign` keeps the supervised signal pure (LM-vs-not-LM) and avoids
+# teaching the head to confuse the two phases.
 #
 # MATCHING RULES
 # --------------
-# A flow is labeled `lm` or `recon` if ALL of:
+# A flow is labeled 1 (LM) if ALL of:
 #   - src_ip == event.victim_ip
 #   - flow ts ∈ [event.ts - LOOKBACK, event.ts + LOOKAHEAD]
 #   - flow's responder is internal (excludes C2 beacons by construction)
@@ -29,7 +29,6 @@
 # DEFAULTS (configurable via constructor)
 # ---------------------------------------
 #   LM_PHASES       = {"lateral", "credential", "privesc"}
-#   RECON_PHASES    = {"recon"}
 #   LOOKBACK        = 30 s   (operator-console clock drift tolerance)
 #   LOOKAHEAD       = 300 s  (command-to-effect latency upper bound)
 #
@@ -45,19 +44,17 @@
 from __future__ import annotations
 
 import bisect
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Iterable, Iterator
 
 from lated.pipelines.offline.picodomain_parser import RedteamEvent
 
 
-# --- label codes (kept as ints, not Enum, to match the spec verbatim) ---
+# --- binary label codes -------------------------------------------------
 LABEL_BENIGN = 0
-LABEL_RECON  = 1
-LABEL_LM_OK  = 2
+LABEL_LM     = 1
 
-_DEFAULT_LM_PHASES    = frozenset({"lateral", "credential", "privesc"})
-_DEFAULT_RECON_PHASES = frozenset({"recon"})
+_DEFAULT_LM_PHASES = frozenset({"lateral", "credential", "privesc"})
 
 
 def _parse_zeek_ts(ts: str) -> datetime:
@@ -68,25 +65,23 @@ def _parse_zeek_ts(ts: str) -> datetime:
 
 
 class WeakLabeler:
-    """Attach a `label` field to every flow based on Red Log events."""
+    """Attach a binary `label` field to every flow based on Red Log events."""
 
     def __init__(
         self,
         lm_phases: Iterable[str] = _DEFAULT_LM_PHASES,
-        recon_phases: Iterable[str] = _DEFAULT_RECON_PHASES,
         lookback_s: float = 30.0,
         lookahead_s: float = 300.0,
         internal_only: bool = True,
     ):
         self.lm_phases = frozenset(lm_phases)
-        self.recon_phases = frozenset(recon_phases)
         self.lookback_s = lookback_s
         self.lookahead_s = lookahead_s
         self.internal_only = internal_only
         # Populated by _index_events:
         self._events_by_ip: dict[str, list[tuple[float, str]]] = {}
         # Counters for visibility:
-        self.counts: dict[int, int] = {LABEL_BENIGN: 0, LABEL_RECON: 0, LABEL_LM_OK: 0}
+        self.counts: dict[int, int] = {LABEL_BENIGN: 0, LABEL_LM: 0}
 
     # ------------------------------------------------------------------ API
 
@@ -97,7 +92,7 @@ class WeakLabeler:
     ) -> Iterator[dict]:
         """
         Yields each input flow dict with two new fields:
-            label        : int  (0 / 1 / 2)
+            label        : int  (0 benign / 1 LM)
             label_reason : str | None  (phase name when labeled, else None)
         """
         self._index_events(redteam_events)
@@ -112,12 +107,12 @@ class WeakLabeler:
     # ----------------------------------------------------------- internals
 
     def _index_events(self, events: Iterable[RedteamEvent]) -> None:
-        """Group events by victim_ip, sort by epoch-seconds for bisect."""
+        """Group LM events by victim_ip, sort by epoch-seconds for bisect."""
         bucket: dict[str, list[tuple[float, str]]] = {}
         for e in events:
             if e.victim_ip is None:
                 continue
-            if e.phase not in self.lm_phases and e.phase not in self.recon_phases:
+            if e.phase not in self.lm_phases:
                 continue
             bucket.setdefault(e.victim_ip, []).append((e.ts.timestamp(), e.phase))
         for ip in bucket:
@@ -142,10 +137,6 @@ class WeakLabeler:
             return LABEL_BENIGN, None
         flow_ts = _parse_zeek_ts(ts_raw).timestamp()
 
-        # Find the rightmost event with event.ts <= flow_ts + lookback (i.e.
-        # the event window has started). Then scan forward until window ends.
-        # Because per-IP buckets are tiny (≤ 40 events), a linear scan over
-        # the bisect-localised slice is fine.
         ts_lo = flow_ts - self.lookahead_s   # event.ts must be >= this
         ts_hi = flow_ts + self.lookback_s    # event.ts must be <= this
 
@@ -154,12 +145,7 @@ class WeakLabeler:
         if lo >= hi:
             return LABEL_BENIGN, None
 
-        # Prefer LM label over recon if both match the same flow.
-        best_label = LABEL_BENIGN
-        best_reason: str | None = None
+        # Any LM event in window flips the flow to LM. Reason = first match.
         for _ts, phase in events[lo:hi]:
-            if phase in self.lm_phases and best_label < LABEL_LM_OK:
-                best_label, best_reason = LABEL_LM_OK, phase
-            elif phase in self.recon_phases and best_label < LABEL_RECON:
-                best_label, best_reason = LABEL_RECON, phase
-        return best_label, best_reason
+            return LABEL_LM, phase
+        return LABEL_BENIGN, None

@@ -29,6 +29,32 @@ logging:
   level: INFO
   format: json              # json (prod) | console (dev)
 
+# --- Network topology --------------------------------------------------------
+# Declarative zoning map. Replaces the legacy "is_private = internal" rule
+# applied previously by graph_repository / realtime_graph. Mirrors what every
+# real NDR / SIEM expects at onboarding (Splunk networks.csv, Zeek
+# Site::local_nets, Suricata HOME_NET, Defender AD-Sites import).
+#
+# Lookup is longest-prefix-match: a /32 carve-out for a critical host overrides
+# any broader /16 zone above it.
+#
+# Each zone entry:
+#   cidr      : IPv4 or IPv6 CIDR (mandatory)
+#   zone      : corporate | dmz | datacenter | iot | ot | public_owned |
+#               partner | external
+#   trust     : trusted | semi_trusted | untrusted   (default: trusted)
+#   name      : human-readable label                 (optional)
+#   sensitive : true -> hosts in this CIDR are treated as critical assets
+#               for severity escalation                                (default: false)
+#
+# Leave `zones: []` and `critical_assets: []` to keep the legacy RFC 1918
+# behaviour (any private IP = internal, any public IP = external).
+network_topology:
+  zones: []
+  # Host_ids or IP addresses considered critical assets (DCs, prod DBs, jump
+  # hosts). Combined with the `sensitive: true` flag on zones above.
+  critical_assets: []
+
 # --- Discovery ---------------------------------------------------------------
 discovery:
   mode: passive             # passive | active | hybrid
@@ -39,11 +65,14 @@ discovery:
 
 # --- Ingestion ---------------------------------------------------------------
 ingestion:
-  mode: replay_live       # replay | live | replay_live
+  mode: live              # replay | live | replay_live
   source: zeek            # pcap | zeek | netflow
   pcap_interface: ""      # only used when source = pcap
   pcap_path: ""           # used in replay mode for pcap file input
-  zeek_log_dir: "C:\\Users\\ilefb\\OneDrive\\Bureau\\LateD\\backend\\data\\picodomain\\2019-07-19"
+  # LIVE: tail Zeek logs produced by the sensor running in WSL2 (eth0).
+  zeek_log_dir: "\\\\wsl$\\Ubuntu\\home\\ilefb7\\zeek-live"
+  # PicoDomain replay (revert here to go back to offline demo):
+  # zeek_log_dir: "C:\\Users\\ilefb\\OneDrive\\Bureau\\LateD\\backend\\data\\picodomain\\2019-07-19"
   netflow_port: 2055
   batch_size: 1000
   # replay_live only: N archived-time seconds per 1 wall-clock second.

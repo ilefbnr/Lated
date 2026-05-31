@@ -16,7 +16,7 @@
 #   - sit inside the original train time window (no leakage into eval),
 #   - perturb only continuous edge-feature channels (one-hot / binary
 #     channels are kept verbatim so the LM signature is preserved),
-#   - carry label==2 so the rest of the pipeline treats them as LM_ok.
+#   - carry label==1 so the rest of the pipeline treats them as LM.
 #
 # CONTRACT
 # --------
@@ -64,8 +64,7 @@ import torch
 _CONTINUOUS_COLS: tuple[int, ...] = (18, 19, 20, 21, 22)
 
 LABEL_BENIGN = 0
-LABEL_RECON  = 1
-LABEL_LM_OK  = 2
+LABEL_LM_OK  = 1
 
 
 # ----------------------------------------------------------------- config
@@ -147,13 +146,11 @@ def synthesize(blob: dict, cfg: SynthConfig | None = None) -> dict:
 def _stats(blob: dict, name: str) -> dict:
     labels = blob["labels"].numpy()
     pos = int((labels == LABEL_LM_OK).sum())
-    rec = int((labels == LABEL_RECON).sum())
     neg = int((labels == LABEL_BENIGN).sum())
     ratio = neg / max(pos, 1)
     print(f"[synth_lm] {name:>6}: n={len(labels):>7}  "
-          f"LM_ok={pos:>5}  recon={rec:>5}  benign={neg:>7}  "
-          f"neg/pos≈{ratio:.1f}")
-    return {"n": len(labels), "lm_ok": pos, "recon": rec,
+          f"LM={pos:>5}  benign={neg:>7}  neg/pos≈{ratio:.1f}")
+    return {"n": len(labels), "lm_ok": pos,
             "benign": neg, "neg_per_pos": ratio}
 
 

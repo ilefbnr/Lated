@@ -1,3 +1,0 @@
-{"ts":"2019-07-21T14:38:14.747101Z","host":"10.99.99.27","software_type":"HTTP::BROWSER","name":"MSIE","version.major":11,"version.minor":0,"unparsed_version":"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 10.0; Win64; x64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)"}
-{"ts":"2019-07-21T14:38:51.085297Z","host":"10.99.99.30","software_type":"HTTP::BROWSER","name":"<unknown browser>","unparsed_version":"Mozilla/5.0 (Windows NT; Windows NT 6.1; en-US) WindowsPowerShell/5.1.14409.1005"}
-{"ts":"2019-07-21T14:39:01.897969Z","host":"10.99.99.152","software_type":"HTTP::BROWSER","name":"<unknown browser>","unparsed_version":"Mozilla/5.0 (Windows NT; Windows NT 6.1; en-US) WindowsPowerShell/5.1.14409.1005"}

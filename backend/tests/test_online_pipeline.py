@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from lated.common.config_manager import ConfigManager
+from lated.common.network_topology import NetworkTopology
 from lated.detection.tgnn.tgnn_inference import TGNNInference
 from lated.pipelines.online.pipeline_runner import build_components
 from lated.pipelines.online.runtime_controller import RuntimeController
@@ -93,12 +94,19 @@ class _CorrelationCfg:
 
 
 @dataclass(frozen=True)
+class _NetworkTopologyCfg:
+    topology: NetworkTopology = NetworkTopology.default()
+    critical_assets: tuple = ()
+
+
+@dataclass(frozen=True)
 class _AppCfg:
     ingestion: _Ingestion
     graph: _GraphCfg
     detection: _DetectionCfg
     correlation: _CorrelationCfg
     thresholds: _Thresholds
+    network_topology: _NetworkTopologyCfg = _NetworkTopologyCfg()
 
 
 def _write_zeek_scan_fixture(directory: Path) -> None:

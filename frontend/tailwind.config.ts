@@ -36,6 +36,7 @@ const config: Config = {
         surface:   '#0E1320',  // panel backgrounds
         elevated:  '#141A2B',
         outline:   '#1F2942',
+        outlineStrong: '#2A375F',
         // Text
         ink:       '#E6EAF3',
         muted:     '#7C8AA9',
@@ -43,6 +44,9 @@ const config: Config = {
         cyan:      '#22D3EE',
         neon:      '#7DF9FF',
         violet:    '#A78BFA',
+        brand:     '#A78BFA',
+        brandStrong: '#B79CFF',
+        brandBlue: '#6F7CF7',
         // Severity ladder (matches Severity enum on backend)
         sev: {
           info:     '#60A5FA',
@@ -53,15 +57,20 @@ const config: Config = {
         },
       },
       fontFamily: {
+        display: ['"Space Grotesk"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        glow:  '0 0 24px rgba(34, 211, 238, 0.25)',
+        glow:  '0 0 24px rgba(167, 139, 250, 0.28)',
         panel: '0 8px 32px rgba(0, 0, 0, 0.45)',
       },
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #B79CFF 0%, #8B6BF0 45%, #6F7CF7 100%)',
+        'cyber-gradient': 'linear-gradient(135deg, #22D3EE 0%, #7DF9FF 100%)',
+      },
       backdropBlur: {
-        glass: '16px',
+        glass: '18px',
       },
       keyframes: {
         pulseGlow: {

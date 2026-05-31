@@ -7,10 +7,14 @@ import { useRouter } from 'next/router';
 
 import { GlassCard } from '@/components/ui/GlassCard';
 import { NeonBadge } from '@/components/ui/NeonBadge';
-import { adminService } from '@/services/adminService';
 import { useUser } from '@/hooks/useUser';
+import { adminService } from '@/services/adminService';
 
-type ActionState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'ok'; message: string } | { kind: 'err'; message: string };
+type ActionState =
+  | { kind: 'idle' }
+  | { kind: 'pending' }
+  | { kind: 'ok'; message: string }
+  | { kind: 'err'; message: string };
 
 export default function AdminPage() {
   const router = useRouter();
@@ -30,10 +34,7 @@ export default function AdminPage() {
       const { status } = await adminService.reloadThresholds();
       setThresholdsState({ kind: 'ok', message: `thresholds reloaded (${status})` });
     } catch (err) {
-      setThresholdsState({
-        kind: 'err',
-        message: err instanceof Error ? err.message : 'failed',
-      });
+      setThresholdsState({ kind: 'err', message: err instanceof Error ? err.message : 'failed' });
     }
   };
 
@@ -44,10 +45,7 @@ export default function AdminPage() {
       setModelInfo(info);
       setModelState({ kind: 'ok', message: 'fetched' });
     } catch (err) {
-      setModelState({
-        kind: 'err',
-        message: err instanceof Error ? err.message : 'failed',
-      });
+      setModelState({ kind: 'err', message: err instanceof Error ? err.message : 'failed' });
     }
   };
 
@@ -55,54 +53,46 @@ export default function AdminPage() {
     <div className="grid grid-cols-12 gap-6 p-6">
       <section className="col-span-12 xl:col-span-6">
         <GlassCard className="h-full">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted">Detection Thresholds</p>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="lated-eyebrow">Detection Thresholds</p>
             <NeonBadge tone="violet">admin only</NeonBadge>
           </div>
-          <p className="text-sm text-muted mb-3">
-            Re-reads <span className="font-mono text-ink">detection_thresholds.yaml</span> on the
-            backend without restarting the process. Recon / fusion / correlation thresholds
-            pick up the new values on their next evaluation.
+          <p className="mb-3 text-[13px] text-[rgb(var(--lated-muted))]">
+            Re-reads <code className="rounded bg-elevated px-1.5 py-0.5 font-mono text-ink">detection_thresholds.yaml</code> on the backend without restarting the process. Recon / fusion / correlation thresholds pick up the new values on their next evaluation.
           </p>
           <button
+            type="button"
             onClick={reloadThresholds}
             disabled={thresholdsState.kind === 'pending'}
-            className="text-xs px-3 py-2 rounded border border-cyan/60 text-cyan hover:bg-cyan/10 disabled:opacity-40"
+            className="rounded border border-cyan/60 bg-cyan/10 px-3 py-2 text-xs text-cyan transition hover:bg-cyan/20 disabled:opacity-40"
           >
-            reload thresholds
+            {thresholdsState.kind === 'pending' ? 'reloading...' : 'reload thresholds'}
           </button>
-          {thresholdsState.kind === 'ok' && (
-            <p className="text-xs text-emerald-300 mt-3">{thresholdsState.message}</p>
-          )}
-          {thresholdsState.kind === 'err' && (
-            <p className="text-xs text-rose-300 mt-3">{thresholdsState.message}</p>
-          )}
+          {thresholdsState.kind === 'ok' && <p className="mt-3 text-xs text-emerald-300">{thresholdsState.message}</p>}
+          {thresholdsState.kind === 'err' && <p className="mt-3 text-xs text-rose-300">{thresholdsState.message}</p>}
         </GlassCard>
       </section>
 
       <section className="col-span-12 xl:col-span-6">
         <GlassCard className="h-full">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted">Model Inventory</p>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="lated-eyebrow">Model Inventory</p>
             <NeonBadge tone="violet">admin only</NeonBadge>
           </div>
-          <p className="text-sm text-muted mb-3">
-            Reads the currently loaded TGNN artifact metadata. In this phase the inference
-            adapter is a deterministic structural placeholder — a real trained model can
-            be wired through ModelLoader without changing this surface.
+          <p className="mb-3 text-[13px] text-[rgb(var(--lated-muted))]">
+            Reads the currently loaded TGNN artifact metadata. In this phase the inference adapter is a deterministic structural placeholder — a real trained model can be wired through ModelLoader without changing this surface.
           </p>
           <button
+            type="button"
             onClick={fetchModelInfo}
             disabled={modelState.kind === 'pending'}
-            className="text-xs px-3 py-2 rounded border border-cyan/60 text-cyan hover:bg-cyan/10 disabled:opacity-40"
+            className="rounded border border-cyan/60 bg-cyan/10 px-3 py-2 text-xs text-cyan transition hover:bg-cyan/20 disabled:opacity-40"
           >
-            fetch model info
+            {modelState.kind === 'pending' ? 'fetching...' : 'fetch model info'}
           </button>
-          {modelState.kind === 'err' && (
-            <p className="text-xs text-rose-300 mt-3">{modelState.message}</p>
-          )}
+          {modelState.kind === 'err' && <p className="mt-3 text-xs text-rose-300">{modelState.message}</p>}
           {modelInfo !== null && (
-            <pre className="mt-3 p-3 rounded border border-outline/40 bg-elevated/40 text-[11px] font-mono text-muted overflow-auto max-h-64">
+            <pre className="mt-3 max-h-60 overflow-auto rounded-md border border-outline/70 bg-elevated p-3 font-mono text-[11px] text-[rgb(var(--lated-muted))]">
               {JSON.stringify(modelInfo, null, 2)}
             </pre>
           )}

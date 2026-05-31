@@ -21,11 +21,15 @@
 #   idx 41..46  DCE endpoint flags (drsuapi, scm_remote, wbem,
 #                netlogon, srvsvc, epmapper)
 #
-# Differences vs offline featurizer:
-#   - At runtime we don't have raw orig_bytes / resp_bytes split. We put
-#     `byte_count` into idx 19 and leave idx 20 at zero. Same for packets.
-#   - We don't have `conn_state`, so idx 23..32 are always zero. This means
-#     the model loses ~10 dims of signal — acceptable degradation for now.
+# Parity with offline featurizer:
+#   - CanonicalFlow now preserves the directional split (orig/resp bytes+pkts),
+#     `conn_state`, and `local_orig`/`local_resp` straight from the Zeek conn
+#     record (see FlowNormalizer). The runtime vector is therefore identical to
+#     the training vector for Zeek-sourced flows.
+#   - For non-Zeek sensors that lack these fields, we degrade gracefully: the
+#     total goes on the orig side (idx 19/21), resp stays 0, conn_state stays
+#     all-zero, and local_* default to 0 (mirrors the offline featurizer's
+#     behavior on missing fields).
 # =============================================================================
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ import numpy as np
 
 from lated.common.schemas import CanonicalFlow
 from lated.pipelines.offline.edge_featurizer import (
-    EDGE_FEAT_DIM, PORT_BUCKETS, _DCE_FLAG_KEYWORDS,
+    EDGE_FEAT_DIM, PORT_BUCKETS, _CONN_STATE_INDEX, _DCE_FLAG_KEYWORDS,
 )
 
 
@@ -78,14 +82,31 @@ def featurize_flow(flow: CanonicalFlow) -> np.ndarray:
     feat[14 + _proto_idx(str(flow.protocol))] = 1.0
 
     feat[18] = _safe_log1p(flow.duration)
-    feat[19] = _safe_log1p(flow.byte_count)
-    feat[21] = _safe_log1p(flow.packet_count)
-    # idx 20 (resp_bytes) and 22 (resp_pkts) stay at 0 — we only carry totals.
-    # idx 23..32 (conn_state) stay at 0 — not available in CanonicalFlow.
+
+    # Directional bytes/pkts: use the real Zeek split when CanonicalFlow carries
+    # it (now preserved by FlowNormalizer); otherwise degrade gracefully by
+    # putting the total on the orig side — same fallback the old code used.
+    orig_bytes = flow.orig_bytes if flow.orig_bytes is not None else flow.byte_count
+    resp_bytes = flow.resp_bytes if flow.resp_bytes is not None else 0
+    orig_pkts = flow.orig_pkts if flow.orig_pkts is not None else flow.packet_count
+    resp_pkts = flow.resp_pkts if flow.resp_pkts is not None else 0
+    feat[19] = _safe_log1p(orig_bytes)
+    feat[20] = _safe_log1p(resp_bytes)
+    feat[21] = _safe_log1p(orig_pkts)
+    feat[22] = _safe_log1p(resp_pkts)
+
+    # conn_state one-hot (idx 23..32) — same table as the offline featurizer.
+    if flow.conn_state is not None:
+        cs_idx = _CONN_STATE_INDEX.get(flow.conn_state)
+        if cs_idx is not None:
+            feat[23 + cs_idx] = 1.0
 
     enr = flow.enrichment or {}
-    feat[33] = 1.0  # assume local_orig=1 in lateral-movement context
-    feat[34] = 1.0  # assume local_resp=1 (no explicit external marker here)
+    # local_orig / local_resp from Zeek when available (matches training). When
+    # absent (non-Zeek sensor), default to 0 to mirror the offline featurizer's
+    # behavior on missing fields, rather than the old hard-coded 1.
+    feat[33] = 1.0 if flow.local_orig else 0.0
+    feat[34] = 1.0 if flow.local_resp else 0.0
 
     feat[35] = 1.0 if enr.get("smb_paths") else 0.0
     feat[36] = 1.0 if enr.get("dce_endpoints") else 0.0

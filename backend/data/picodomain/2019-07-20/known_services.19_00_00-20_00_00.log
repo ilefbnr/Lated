@@ -1,6 +1,0 @@
-{"ts":"2019-07-20T19:04:06.602942Z","host":"10.99.99.5","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-20T19:04:09.425921Z","host":"10.99.99.5","port_num":88,"port_proto":"tcp","service":["KRB_TCP"]}
-{"ts":"2019-07-20T19:06:25.324806Z","host":"10.99.99.100","port_num":67,"port_proto":"udp","service":["DHCP"]}
-{"ts":"2019-07-20T19:06:25.324950Z","host":"10.99.99.5","port_num":67,"port_proto":"udp","service":["DHCP"]}
-{"ts":"2019-07-20T19:14:36.544631Z","host":"10.99.99.5","port_num":49666,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-20T19:38:02.364900Z","host":"10.99.99.160","port_num":139,"port_proto":"tcp","service":["GSSAPI"]}

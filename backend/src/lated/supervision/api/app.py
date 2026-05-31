@@ -101,9 +101,12 @@ def create_app(
         registry_path=app.state.registry_path,
         event_store=app.state.event_store,
     )
+    network_topology = config.network_topology.topology
+    app.state.network_topology = network_topology
     app.state.graph_repository = GraphRepository(
         persistence.get_session,
         baseline_path=resolved_baseline_path,
+        network_topology=network_topology,
     )
     app.state.flows_repository = FlowsRepository(persistence.get_session)
     app.state.paths_repository = PathsRepository(
@@ -121,6 +124,7 @@ def create_app(
     app.state.realtime_graph = RealtimeGraphProcessor(
         publisher=app.state.ws_channels,
         host_registry=app.state.realtime_host_registry,
+        network_topology=network_topology,
     )
 
     # --- Live detection pipeline ---------------------------------------
@@ -147,6 +151,8 @@ def create_app(
                 graph_builder=components.graph_builder,
                 recon_detector=components.recon_detector,
                 smb_detector=components.smb_detector,
+                rdp_detector=components.rdp_detector,
+                winrm_detector=components.winrm_detector,
                 rare_edge_detector=components.rare_edge_detector,
                 mitre_rules_detector=components.mitre_rules_detector,
                 lm_inference=components.lm_inference,

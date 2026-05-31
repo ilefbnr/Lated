@@ -16,14 +16,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from lated.common.exceptions import ModelLoadError
 from lated.common.schemas import (
     CanonicalFlow,
-    EdgeFeatures,
-    NodeFeatures,
     SCHEMA_VERSION,
-    TemporalSnapshot,
 )
 from lated.detection.tgnn.model_loader import ModelLoader
-from lated.detection.tgnn.tgnn_inference import PLACEHOLDER_MODEL_VERSION, TGNNInference
-from lated.graph.graph_builder import GraphBuilder
+from lated.detection.tgnn.tgnn_inference import TGNNInference
 
 
 def _flow(
@@ -50,54 +46,16 @@ def _flow(
     )
 
 
-def _snapshot_stream() -> list[TemporalSnapshot]:
+def test_tgnn_inference_without_runtime_emits_no_scores() -> None:
+    """With no checkpoint loaded, score_flows returns [] — no fallback."""
     base = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-    flows = []
-    for i in range(8):
-        flows.append(_flow(f"f{i}", base + timedelta(seconds=i), "host-a", f"host-{i}", dst_port=1000 + i))
-    # a single benign flow in a separate window
-    flows.append(_flow("fz", base + timedelta(seconds=70), "host-b", "host-c"))
-    return GraphBuilder(window_seconds=30).run(flows)
-
-
-def test_tgnn_placeholder_emits_deterministic_lm_scores() -> None:
-    snapshots = _snapshot_stream()
-    a = TGNNInference().run(snapshots)
-    b = TGNNInference().run(snapshots)
-    assert [s.model_dump(mode="json") for s in a] == [s.model_dump(mode="json") for s in b]
-    assert all(0.0 <= score.score <= 1.0 for score in a)
-    assert any(score.subject_host == "host-a" for score in a)
-
-
-def test_tgnn_placeholder_carries_contributing_edges() -> None:
-    snapshots = _snapshot_stream()
-    scores = TGNNInference().run(snapshots)
-    attacker_scores = [s for s in scores if s.subject_host == "host-a"]
-    assert attacker_scores, "host-a should emit at least one LMScore"
-    sample = attacker_scores[0]
-    assert sample.model_version == PLACEHOLDER_MODEL_VERSION
-    # all contributing edges originate from the subject
-    assert all(src == sample.subject_host for src, _dst in sample.contributing_edges)
-
-
-def test_tgnn_inference_does_not_crash_on_bad_snapshot() -> None:
-    valid = _snapshot_stream()
-    # Bad snapshot: a node_features dict missing the expected host -> _score_snapshot
-    # handles it safely. We pass a hand-crafted snapshot with empty features that
-    # references a host id only in the nodes list.
-    broken = TemporalSnapshot(
-        snapshot_id="snap-broken",
-        window_start=datetime(2024, 1, 2, tzinfo=timezone.utc),
-        window_end=datetime(2024, 1, 2, 0, 0, 30, tzinfo=timezone.utc),
-        nodes=["host-x"],
-        edges=[],
-        edge_features={},
-        node_features={},
-    )
+    flows = [
+        _flow(f"f{i}", base + timedelta(seconds=i), "host-a", f"host-{i}", dst_port=1000 + i)
+        for i in range(8)
+    ]
     inf = TGNNInference()
-    out = inf.run([broken, *valid])
-    # the bad snapshot must not poison the stream — valid snapshots still score
-    assert any(s.subject_host == "host-a" for s in out)
+    assert inf.has_runtime is False
+    assert inf.score_flows(flows) == []
 
 
 def test_model_loader_accepts_signed_artifact(tmp_path) -> None:

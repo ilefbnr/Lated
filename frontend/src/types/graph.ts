@@ -5,6 +5,19 @@
 // need a transform step. This keeps the attack-graph page snappy.
 // =============================================================================
 
+export type NetworkZone =
+  | 'corporate'
+  | 'dmz'
+  | 'datacenter'
+  | 'iot'
+  | 'ot'
+  | 'public_owned'
+  | 'partner'
+  | 'external'
+  | 'unknown';
+
+export type NetworkTrust = 'trusted' | 'semi_trusted' | 'untrusted';
+
 export interface GraphNode {
   data: {
     id: string;                // host_id
@@ -21,6 +34,9 @@ export interface GraphNode {
     gateway?: boolean;
     service?: boolean;
     external?: boolean;
+    zone?: NetworkZone;
+    trust?: NetworkTrust;
+    critical_asset?: boolean;
   };
 }
 

@@ -46,6 +46,11 @@ from typing import Any
 import yaml
 
 from lated.common.exceptions import ConfigError
+from lated.common.network_topology import (
+    NetworkTopology,
+    ZoneEntry,
+    parse_zone_entries,
+)
 
 
 # -----------------------------------------------------------------------------
@@ -63,6 +68,18 @@ class ApiConfig:
 class LoggingConfig:
     level: str
     format: str
+
+
+@dataclass(frozen=True)
+class NetworkTopologyConfig:
+    """
+    Parsed `network_topology` section. The `topology` attribute is the live
+    classifier ready to use; `zone_entries` and `critical_assets` are kept
+    available for diagnostics / API exposure (e.g. /health).
+    """
+    zone_entries: tuple[ZoneEntry, ...]
+    critical_assets: tuple[str, ...]
+    topology: NetworkTopology
 
 
 @dataclass(frozen=True)
@@ -179,6 +196,7 @@ class AppConfig:
     env: str
     api: ApiConfig
     logging: LoggingConfig
+    network_topology: NetworkTopologyConfig
     discovery: DiscoveryConfig
     ingestion: IngestionConfig
     graph: GraphConfig
@@ -292,6 +310,9 @@ class ConfigManager:
     ) -> AppConfig:
         api_raw = cls._require_dict(settings_raw, "api")
         logging_raw = cls._require_dict(settings_raw, "logging")
+        network_topology_raw = settings_raw.get("network_topology") or {}
+        if not isinstance(network_topology_raw, dict):
+            raise ConfigError("Configuration section 'network_topology' must be a mapping.")
         discovery_raw = cls._require_dict(settings_raw, "discovery")
         ingestion_raw = cls._require_dict(settings_raw, "ingestion")
         graph_raw = cls._require_dict(settings_raw, "graph")
@@ -317,6 +338,8 @@ class ConfigManager:
             level=cls._as_log_level(logging_raw.get("level"), "logging.level"),
             format=cls._as_choice(logging_raw.get("format"), "logging.format", {"json", "console"}),
         )
+
+        network_topology = cls._build_network_topology(network_topology_raw)
 
         discovery = DiscoveryConfig(
             mode=cls._as_choice(discovery_raw.get("mode"), "discovery.mode", {"passive", "active", "hybrid"}),
@@ -476,6 +499,7 @@ class ConfigManager:
             env=env,
             api=api,
             logging=logging,
+            network_topology=network_topology,
             discovery=discovery,
             ingestion=ingestion,
             graph=graph,
@@ -483,6 +507,32 @@ class ConfigManager:
             correlation=correlation,
             supervision=supervision,
             thresholds=thresholds,
+        )
+
+    @classmethod
+    def _build_network_topology(cls, raw: dict[str, Any]) -> NetworkTopologyConfig:
+        zones_raw = raw.get("zones", []) or []
+        if not isinstance(zones_raw, list):
+            raise ConfigError("Configuration value 'network_topology.zones' must be a list.")
+
+        critical_raw = raw.get("critical_assets", []) or []
+        if not isinstance(critical_raw, list) or any(
+            not isinstance(item, str) for item in critical_raw
+        ):
+            raise ConfigError(
+                "Configuration value 'network_topology.critical_assets' must be a list of strings."
+            )
+
+        try:
+            entries = parse_zone_entries(zones_raw)
+        except ValueError as exc:
+            raise ConfigError(str(exc)) from exc
+
+        topology = NetworkTopology(entries=entries, critical_assets=critical_raw)
+        return NetworkTopologyConfig(
+            zone_entries=tuple(entries),
+            critical_assets=tuple(critical_raw),
+            topology=topology,
         )
 
     @classmethod

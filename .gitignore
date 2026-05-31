@@ -1,7 +1,49 @@
-~$*
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Node
 node_modules/
 .next/
-__pycache__/
-.pytest_cache/
+out/
 dist/
 build/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Data (large files)
+backend/data/
+*.pcap
+
+# Models
+*.pt
+*.pth
+*.ckpt
+
+# Databases
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.sqlite3-journal
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Claude local
+.claude/

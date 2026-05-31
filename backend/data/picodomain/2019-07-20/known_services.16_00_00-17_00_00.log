@@ -1,2 +1,0 @@
-{"ts":"2019-07-20T16:13:54.776330Z","host":"10.99.99.152","port_num":139,"port_proto":"tcp","service":["GSSAPI"]}
-{"ts":"2019-07-20T16:56:28.739470Z","host":"10.99.99.30","port_num":64669,"port_proto":"tcp","service":["DCE_RPC"]}

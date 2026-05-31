@@ -6,14 +6,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 import {
-  ShieldAlertIcon,
   BellIcon,
-  NetworkIcon,
-  ServerIcon,
   ClockIcon,
+  GithubIcon,
   ListIcon,
-  SettingsIcon,
+  NetworkIcon,
   RadarIcon,
+  ServerIcon,
+  SettingsIcon,
+  ShieldAlertIcon,
 } from 'lucide-react';
 
 import type { Role } from '@/services/authService';
@@ -27,14 +28,14 @@ interface NavItem {
 }
 
 const items: NavItem[] = [
-  { href: '/overview',     label: 'Overview',     icon: ShieldAlertIcon },
-  { href: '/discovery',    label: 'Discovery',    icon: RadarIcon },
-  { href: '/alerts',       label: 'Alerts',       icon: BellIcon },
+  { href: '/overview', label: 'Overview', icon: ShieldAlertIcon },
+  { href: '/discovery', label: 'Discovery', icon: RadarIcon },
+  { href: '/alerts', label: 'Alerts', icon: BellIcon },
   { href: '/attack-graph', label: 'Attack Graph', icon: NetworkIcon },
-  { href: '/hosts',        label: 'Hosts',        icon: ServerIcon },
-  { href: '/timeline',     label: 'Timeline',     icon: ClockIcon },
-  { href: '/flows',        label: 'Flows',        icon: ListIcon },
-  { href: '/admin',        label: 'Admin',        icon: SettingsIcon, minRole: 'admin' },
+  { href: '/hosts', label: 'Hosts', icon: ServerIcon },
+  { href: '/timeline', label: 'Timeline', icon: ClockIcon },
+  { href: '/flows', label: 'Flows', icon: ListIcon },
+  { href: '/admin', label: 'Admin', icon: SettingsIcon, minRole: 'admin' },
 ];
 
 export function Sidebar() {
@@ -42,34 +43,49 @@ export function Sidebar() {
   const hasRole = useUserStore((state) => state.hasRole);
 
   return (
-    <aside
-      className="w-60 shrink-0 glass m-3 mr-0 p-4 flex flex-col gap-2"
-      aria-label="Primary"
-    >
-      <div className="px-2 py-3 mb-3">
-        <p className="text-xs uppercase tracking-[0.25em] text-muted">LateD</p>
-        <p className="text-lg font-semibold text-cyan">SOC Command</p>
+    <aside className="glass m-3 mr-0 flex w-[232px] shrink-0 flex-col gap-1 p-4" aria-label="Primary">
+      <div className="mb-[18px] flex items-center gap-3 px-2 py-[6px]">
+        <span className="lated-logo-halo inline-flex h-[38px] w-[38px] items-center justify-center rounded-2xl bg-[var(--lated-grad-brand)] text-sm font-semibold text-white shadow-[0_10px_28px_rgba(139,107,240,0.35)]">
+          L
+        </span>
+        <div>
+          <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.3em] text-[rgb(var(--lated-muted))]">LATED</p>
+          <p className="m-0 whitespace-nowrap font-display text-sm font-semibold leading-tight text-[rgb(var(--lated-ink))]">SOC Command</p>
+        </div>
       </div>
+
       {items.map((item) => {
         if (item.minRole !== undefined && !hasRole(item.minRole)) return null;
         const active = router.pathname === item.href;
         const Icon = item.icon;
+
         return (
           <Link
             key={item.href}
             href={item.href}
             className={clsx(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+              'relative flex items-center gap-[11px] rounded-lg border px-3 py-[9px] text-[13px] transition-all',
               active
-                ? 'bg-cyan/10 text-cyan border border-cyan/50'
-                : 'text-muted hover:text-ink hover:bg-elevated/60',
+                ? 'border-brand/45 bg-brand/10 text-brand'
+                : 'border-transparent text-[rgb(var(--lated-muted))] hover:bg-[rgb(var(--lated-elevated))] hover:text-[rgb(var(--lated-ink))]',
             )}
           >
-            <Icon size={16} />
+            {active && <span className="absolute inset-y-[6px] left-0 w-[3px] rounded-full bg-[var(--lated-grad-brand)]" />}
+            <Icon size={15} />
             <span>{item.label}</span>
           </Link>
         );
       })}
+
+      <a
+        href="https://github.com/ilefbnr/Lated"
+        target="_blank"
+        rel="noreferrer"
+        className="mt-auto flex items-center gap-2 border-t border-outline/70 px-[10px] pt-[14px] text-[11px] text-[rgb(var(--lated-muted))] transition hover:text-[rgb(var(--lated-ink))]"
+      >
+        <GithubIcon size={13} />
+        <span>github.com/ilefbnr/Lated</span>
+      </a>
     </aside>
   );
 }

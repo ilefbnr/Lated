@@ -1,5 +1,0 @@
-{"ts":"2019-07-19T18:09:44.053489Z","host":"10.99.99.5","port_num":53,"port_proto":"udp","service":["DNS"]}
-{"ts":"2019-07-19T18:15:19.739901Z","host":"10.99.99.5","port_num":445,"port_proto":"tcp","service":["GSSAPI"]}
-{"ts":"2019-07-19T18:18:06.890261Z","host":"10.99.99.5","port_num":139,"port_proto":"tcp","service":["GSSAPI"]}
-{"ts":"2019-07-19T18:55:55.390229Z","host":"10.99.99.5","port_num":135,"port_proto":"tcp","service":["DCE_RPC"]}
-{"ts":"2019-07-19T18:55:58.211291Z","host":"10.99.99.5","port_num":88,"port_proto":"tcp","service":["KRB_TCP"]}

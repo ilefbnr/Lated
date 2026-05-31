@@ -24,7 +24,9 @@ from lated.correlation.graph_adjacency import GraphAdjacency, StaticAdjacency
 from lated.detection.fusion.risk_scorer import RiskScorer
 from lated.detection.fusion.suspicion_fusion import SuspicionFusion
 from lated.detection.protocols.rare_edge_detector import RareEdgeDetector
+from lated.detection.protocols.rdp_detector import RDPDetector
 from lated.detection.protocols.smb_detector import SMBDetector
+from lated.detection.protocols.winrm_detector import WinRMDetector
 from lated.detection.recon.recon_detector import ReconDetector
 from lated.detection.rules import MITRERulesDetector, load_rules
 from lated.detection.tgnn.tgnn_inference import TGNNInference
@@ -51,6 +53,8 @@ class PipelineComponents:
     graph_store: GraphStore
     recon_detector: ReconDetector
     smb_detector: SMBDetector
+    rdp_detector: RDPDetector
+    winrm_detector: WinRMDetector
     rare_edge_detector: RareEdgeDetector
     mitre_rules_detector: MITRERulesDetector | None
     lm_inference: TGNNInference
@@ -95,6 +99,12 @@ def build_components(
     )
 
     smb_detector = SMBDetector(
+        window_seconds=config.graph.snapshot_window_seconds,
+    )
+    rdp_detector = RDPDetector(
+        window_seconds=config.graph.snapshot_window_seconds,
+    )
+    winrm_detector = WinRMDetector(
         window_seconds=config.graph.snapshot_window_seconds,
     )
 
@@ -184,10 +194,26 @@ def build_components(
     )
 
     publisher = publisher or EventPublisher()
+
+    # NetworkTopology-aware critical-asset lookup. Falls back to host_id-only
+    # check when the host has no IP binding yet (early-discovery edge case).
+    topology = config.network_topology.topology
+
+    def _is_critical_host(host_id: str) -> bool:
+        try:
+            host = registry.get(host_id)
+            return topology.is_critical_asset(host_id, list(host.ip_addresses))
+        except KeyError:
+            return topology.is_critical_asset(host_id, None)
+
+    severity_mapper = SeverityMapper(
+        critical_asset_ids=set(config.network_topology.critical_assets),
+        is_critical_host=_is_critical_host,
+    )
     alert_engine = AlertEngine(
         repository=alert_repository,
         publisher=publisher,
-        severity_mapper=SeverityMapper(),
+        severity_mapper=severity_mapper,
         suspicion_threshold=suspicion_threshold,
     )
 
@@ -196,6 +222,8 @@ def build_components(
         graph_builder=graph_builder,
         recon_detector=recon_detector,
         smb_detector=smb_detector,
+        rdp_detector=rdp_detector,
+        winrm_detector=winrm_detector,
         rare_edge_detector=rare_edge_detector,
         lm_inference=lm_inference,
         fusion=fusion,
@@ -213,6 +241,8 @@ def build_components(
         graph_store=graph_store,
         recon_detector=recon_detector,
         smb_detector=smb_detector,
+        rdp_detector=rdp_detector,
+        winrm_detector=winrm_detector,
         rare_edge_detector=rare_edge_detector,
         mitre_rules_detector=mitre_rules_detector,
         lm_inference=lm_inference,

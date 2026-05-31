@@ -48,6 +48,8 @@ class PipelineResult:
     lm_scores: list = field(default_factory=list)
     recon_scores: list = field(default_factory=list)
     smb_scores: list = field(default_factory=list)
+    rdp_scores: list = field(default_factory=list)
+    winrm_scores: list = field(default_factory=list)
     rare_edge_scores: list = field(default_factory=list)
     rule_scores: list = field(default_factory=list)
     suspicions: list = field(default_factory=list)
@@ -74,11 +76,15 @@ class StreamOrchestrator:
         correlation_store=None,
         publisher=None,
         mitre_rules_detector=None,
+        rdp_detector=None,
+        winrm_detector=None,
     ):
         self.ingestion = ingestion
         self.graph_builder = graph_builder
         self.recon_detector = recon_detector
         self.smb_detector = smb_detector
+        self.rdp_detector = rdp_detector
+        self.winrm_detector = winrm_detector
         self.rare_edge_detector = rare_edge_detector
         self.lm_inference = lm_inference
         self.fusion = fusion
@@ -102,13 +108,9 @@ class StreamOrchestrator:
             result.snapshots = []
 
         try:
-            # Prefer event-based real TGN inference when the model is loaded;
-            # the placeholder structural scorer over snapshots is the fallback.
-            tgn_runtime = getattr(self.lm_inference, "_tgn_runtime", None)
-            if tgn_runtime is not None and hasattr(self.lm_inference, "score_flows"):
-                result.lm_scores = list(self.lm_inference.score_flows(result.flows))
-            else:
-                result.lm_scores = list(self.lm_inference.run(result.snapshots))
+            # Event-based TGN inference only. If no checkpoint is loaded,
+            # score_flows returns [] and LM is silent for this window.
+            result.lm_scores = list(self.lm_inference.score_flows(result.flows))
         except Exception as exc:  # noqa: BLE001
             result.errors["lm_inference"] = f"{type(exc).__name__}: {exc}"
             result.lm_scores = []
@@ -125,6 +127,20 @@ class StreamOrchestrator:
         except Exception as exc:  # noqa: BLE001
             result.errors["smb_detector"] = f"{type(exc).__name__}: {exc}"
             result.smb_scores = []
+
+        if self.rdp_detector is not None:
+            try:
+                result.rdp_scores = list(self.rdp_detector.run(result.flows))
+            except Exception as exc:  # noqa: BLE001
+                result.errors["rdp_detector"] = f"{type(exc).__name__}: {exc}"
+                result.rdp_scores = []
+
+        if self.winrm_detector is not None:
+            try:
+                result.winrm_scores = list(self.winrm_detector.run(result.flows))
+            except Exception as exc:  # noqa: BLE001
+                result.errors["winrm_detector"] = f"{type(exc).__name__}: {exc}"
+                result.winrm_scores = []
 
         try:
             result.rare_edge_scores = list(self.rare_edge_detector.run(result.flows))
@@ -146,6 +162,8 @@ class StreamOrchestrator:
                 [
                     *result.recon_scores,
                     *result.smb_scores,
+                    *result.rdp_scores,
+                    *result.winrm_scores,
                     *result.rare_edge_scores,
                     *result.rule_scores,
                 ],
@@ -187,6 +205,8 @@ class StreamOrchestrator:
             "lm_scores": len(result.lm_scores),
             "recon_scores": len(result.recon_scores),
             "smb_scores": len(result.smb_scores),
+            "rdp_scores": len(result.rdp_scores),
+            "winrm_scores": len(result.winrm_scores),
             "rare_edge_scores": len(result.rare_edge_scores),
             "rule_scores": len(result.rule_scores),
             "suspicions": len(result.suspicions),

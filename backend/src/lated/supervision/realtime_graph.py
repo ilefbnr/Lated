@@ -8,9 +8,9 @@ import asyncio
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import ipaddress
 from typing import Any
 
+from lated.common.network_topology import NetworkTopology
 from lated.common.schemas import CanonicalFlow, WSChannel, WSEvent, WSEventName
 from lated.discovery.host_registry import HostRegistry
 
@@ -29,9 +29,15 @@ class RealtimeGraphState:
 class RealtimeGraphProcessor:
     """Maintains and publishes an in-memory graph updated flow by flow."""
 
-    def __init__(self, publisher, host_registry: HostRegistry | None = None):
+    def __init__(
+        self,
+        publisher,
+        host_registry: HostRegistry | None = None,
+        network_topology: NetworkTopology | None = None,
+    ):
         self.publisher = publisher
         self.host_registry = host_registry
+        self.network_topology = network_topology or NetworkTopology.default()
         self.state = RealtimeGraphState()
         self._edge_packets: dict[str, int] = defaultdict(int)
         self._edge_bytes: dict[str, int] = defaultdict(int)
@@ -103,16 +109,17 @@ class RealtimeGraphProcessor:
         label = host_id
         subnet = None
         ip_addresses: list[str] = []
-        external = False
         if self.host_registry is not None:
             try:
                 host = self.host_registry.get(host_id)
                 label = host.hostname or host.host_id
                 subnet = host.subnet
                 ip_addresses = list(host.ip_addresses)
-                external = self._host_is_external(ip_addresses)
             except Exception:
                 pass
+
+        classification = self.network_topology.classify_host(ip_addresses)
+        critical = self.network_topology.is_critical_asset(host_id, ip_addresses)
         self.state.nodes[host_id] = {
             "data": {
                 "id": host_id,
@@ -120,21 +127,12 @@ class RealtimeGraphProcessor:
                 "risk": 0.0,
                 "subnet": subnet,
                 "ip_addresses": ip_addresses,
-                "external": external,
+                "external": classification.zone.value == "external",
+                "zone": classification.zone.value,
+                "trust": classification.trust.value,
+                "critical_asset": critical,
             }
         }
-
-    @staticmethod
-    def _host_is_external(ip_addresses: list[str]) -> bool:
-        if not ip_addresses:
-            return False
-        for raw_ip in ip_addresses:
-            try:
-                if ipaddress.ip_address(str(raw_ip)).is_private:
-                    return False
-            except ValueError:
-                continue
-        return True
 
     def _edge_is_external(self, src_host: str, dst_host: str) -> bool:
         src = self.state.nodes.get(src_host, {}).get("data", {})
